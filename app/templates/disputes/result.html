@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>爭議詳情 (ID: {{ dispute.id }})</h2>
+<div class="card mt-4 mb-4">
+    <div class="card-body">
+        <p><strong>爭議原因：</strong> {{ dispute.reason }}</p>
+        <p><strong>發起時間：</strong> {{ dispute.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        <p><strong>狀態：</strong> 
+            {% if dispute.status == 'pending' %}
+                <span class="badge bg-warning text-dark">等待處理</span>
+            {% elif dispute.status == 'resolved' %}
+                <span class="badge bg-success">已裁決</span>
+            {% else %}
+                <span class="badge bg-info">{{ dispute.status }}</span>
+            {% endif %}
+        </p>
+        
+        {% if dispute.status == 'resolved' %}
+        <div class="alert alert-success mt-3">
+            <h4>裁決結果</h4>
+            <p>{{ dispute.admin_decision }}</p>
+            <small>裁決時間：{{ dispute.resolved_at.strftime('%Y-%m-%d %H:%M') }}</small>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<h4>已上傳的照片</h4>
+<div class="row">
+    {% for evidence in evidences %}
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <img src="{{ evidence.file_url }}" class="card-img-top" alt="Evidence Photo" style="height: 200px; object-fit: cover;">
+            <div class="card-body">
+                <p class="card-text">
+                    類型：{{ '入住點交' if evidence.photo_type == 'move_in' else '退租屋況' }}
+                </p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>尚未上傳任何照片。</p>
+    {% endfor %}
+</div>
+
+{% if dispute.status != 'resolved' %}
+<a href="{{ url_for('dispute.upload_evidence', dispute_id=dispute.id) }}" class="btn btn-primary mt-3">繼續上傳照片</a>
+{% endif %}
+{% endblock %}
