@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="payment-flow">
+    <header class="page-header">
+        <h1>線上繳交房租</h1>
+        <p class="subtitle">安全、快速的繳款流程</p>
+    </header>
+
+    <div class="payment-container">
+        <!-- 交易明細區塊 -->
+        <div class="glass-card summary-section">
+            <h3>交易明細</h3>
+            <div class="summary-item">
+                <span>租屋處</span>
+                <span>{{ lease.address }}</span>
+            </div>
+            <div class="summary-item">
+                <span>繳費項目</span>
+                <span>本期房租</span>
+            </div>
+            <hr>
+            <div class="summary-item total">
+                <span>應繳總額</span>
+                <span>NT$ {{ "{:,}".format(lease.monthly_rent) }}</span>
+            </div>
+            
+            <div class="trust-indicators">
+                <div class="trust-item">🔒 256-bit SSL 加密</div>
+                <div class="trust-item">🛡️ 平台資金履約保證</div>
+            </div>
+        </div>
+
+        <!-- 信用卡表單區塊 -->
+        <div class="glass-card form-section">
+            <form action="{{ url_for('payment.new_payment') }}" method="POST" id="paymentForm">
+                <input type="hidden" name="amount" value="{{ lease.monthly_rent }}">
+                
+                <div class="form-group">
+                    <label>付款方式</label>
+                    <div class="radio-group">
+                        <label class="radio-btn active">
+                            <input type="radio" name="payment_method" value="Credit Card" checked>
+                            💳 信用卡/簽帳金融卡
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardNumber">信用卡號 (測試用，請勿輸入真實卡號)</label>
+                    <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000" class="input-field" required maxlength="19">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="expiry">有效期限</label>
+                        <input type="text" id="expiry" placeholder="MM/YY" class="input-field" required maxlength="5">
+                    </div>
+                    <div class="form-group half">
+                        <label for="cvc">安全碼 (CVC)</label>
+                        <input type="text" id="cvc" placeholder="123" class="input-field" required maxlength="3">
+                    </div>
+                </div>
+
+                <button type="button" id="initiatePaymentBtn" class="btn btn-primary btn-block btn-glow">
+                    確認付款 NT$ {{ "{:,}".format(lease.monthly_rent) }}
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 防詐騙確認 Modal -->
+<div id="antiScamModal" class="modal">
+    <div class="modal-content glass-card">
+        <div class="modal-header warning">
+            <span class="warning-icon">⚠️</span>
+            <h2>最後確認 - 防詐騙提醒</h2>
+        </div>
+        <div class="modal-body">
+            <p>即將支付 <strong>NT$ {{ "{:,}".format(lease.monthly_rent) }}</strong> 至 <strong>SafeRent 信託帳戶</strong>。</p>
+            <ul class="warning-list">
+                <li>本平台<strong>不會</strong>要求您前往 ATM 解除分期付款。</li>
+                <li>這筆資金將由平台暫管，確認您的租賃權益無損後才會撥款給房東。</li>
+            </ul>
+            <p class="question">您確定要送出這筆付款嗎？</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancelBtn">返回修改</button>
+            <button class="btn btn-primary" id="confirmPaymentBtn">確認無誤，送出付款</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
