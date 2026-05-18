@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>發起爭議 (合約 ID: {{ contract_id }})</h2>
+<div class="card mt-4">
+    <div class="card-body">
+        <form method="POST">
+            <div class="mb-3">
+                <label for="reason" class="form-label">請說明爭議原因（例如：退租時房東要求扣除不合理押金）</label>
+                <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">送出爭議並前往上傳證據</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

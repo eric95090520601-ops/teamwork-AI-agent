@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>審核爭議案件 (ID: {{ dispute.id }})</h2>
+
+<div class="card mt-3 mb-4">
+    <div class="card-body">
+        <h5 class="card-title">爭議原因</h5>
+        <p class="card-text">{{ dispute.reason }}</p>
+    </div>
+</div>
+
+<h4>雙方證據對比</h4>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">入住時照片 (Move in)</div>
+            <div class="card-body row">
+                {% for photo in move_in_photos %}
+                <div class="col-6 mb-2">
+                    <a href="{{ photo.file_url }}" target="_blank">
+                        <img src="{{ photo.file_url }}" class="img-fluid rounded" alt="入住照片" style="height: 150px; width: 100%; object-fit: cover;">
+                    </a>
+                </div>
+                {% else %}
+                <p>無照片。</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">退租時照片 (Move out)</div>
+            <div class="card-body row">
+                {% for photo in move_out_photos %}
+                <div class="col-6 mb-2">
+                    <a href="{{ photo.file_url }}" target="_blank">
+                        <img src="{{ photo.file_url }}" class="img-fluid rounded" alt="退租照片" style="height: 150px; width: 100%; object-fit: cover;">
+                    </a>
+                </div>
+                {% else %}
+                <p>無照片。</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">裁決結果填寫</div>
+    <div class="card-body">
+        {% if dispute.status == 'resolved' %}
+            <div class="alert alert-success">
+                已於 {{ dispute.resolved_at.strftime('%Y-%m-%d %H:%M') }} 裁決。<br>
+                <strong>裁決內容：</strong><br>
+                {{ dispute.admin_decision }}
+            </div>
+        {% else %}
+            <form action="{{ url_for('dispute.admin_dispute_decide', dispute_id=dispute.id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">請根據照片對比，給出初步裁決說明（如：牆面汙損屬實，建議扣除押金 500 元）</label>
+                    <textarea name="admin_decision" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger">送出裁決 (不可修改)</button>
+            </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
