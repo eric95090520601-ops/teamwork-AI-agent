@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <h1>租客儀表板</h1>
+        <p class="subtitle">歡迎回來，{{ user.username }}。您的租屋狀態一切正常。</p>
+    </header>
+
+    <div class="card-grid">
+        <div class="glass-card status-card">
+            <div class="card-icon">🏠</div>
+            <h3>目前租約</h3>
+            <p class="address">{{ lease.address }}</p>
+            <div class="lease-dates">
+                <span>{{ lease.start_date }}</span> 至 <span>{{ lease.end_date }}</span>
+            </div>
+        </div>
+
+        <div class="glass-card payment-card highlight-card">
+            <div class="card-content">
+                <h3>本期應繳房租</h3>
+                <div class="amount">NT$ {{ "{:,}".format(lease.monthly_rent) }}</div>
+                <p class="due-date">繳款期限：本月 5 日前</p>
+                <div class="security-badge">
+                    🛡️ 平台擔保交易
+                </div>
+            </div>
+            <a href="{{ url_for('payment.new_payment') }}" class="btn btn-primary btn-glow">
+                立即線上繳款
+            </a>
+        </div>
+    </div>
+    
+    <div class="security-banner mt-4">
+        <div class="banner-icon">🔒</div>
+        <div class="banner-text">
+            <h4>反詐騙提醒</h4>
+            <p>請一律透過 SafeRent 平台進行繳費。切勿聽信來電要求操作 ATM 或轉帳至不明個人戶頭。</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
