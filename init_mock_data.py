@@ -1,4 +1,4 @@
-from app import create_app
+from main import create_app
 from app.models.models import db, User, Contract
 import os
 

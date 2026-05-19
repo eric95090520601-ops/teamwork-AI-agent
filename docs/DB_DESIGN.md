@@ -1,4 +1,4 @@
-# 資料庫設計 (爭議仲裁功能)
+# 資料庫設計 (爭議仲裁與報修溝通中心)
 
 ## 1. ER 圖（實體關係圖）
 ```mermaid
@@ -37,11 +37,46 @@ erDiagram
         datetime uploaded_at
     }
     
+    REPAIRS {
+        int id PK
+        int contract_id FK
+        int initiator_id FK
+        string item_name
+        string description
+        string status "pending, reviewing, resolved"
+        datetime created_at
+        datetime updated_at
+    }
+    
+    REPAIR_EVIDENCES {
+        int id PK
+        int repair_id FK
+        int uploader_id FK
+        string evidence_type "original, broken"
+        string file_url
+        datetime uploaded_at
+    }
+
+    MESSAGES {
+        int id PK
+        int repair_id FK
+        int sender_id FK
+        string content
+        datetime created_at
+    }
+    
     USERS ||--o{ CONTRACTS : "owns/rents"
     CONTRACTS ||--o{ DISPUTES : "has"
     USERS ||--o{ DISPUTES : "initiates/resolves"
     DISPUTES ||--o{ DISPUTE_EVIDENCES : "contains"
     USERS ||--o{ DISPUTE_EVIDENCES : "uploads"
+    
+    CONTRACTS ||--o{ REPAIRS : "has"
+    USERS ||--o{ REPAIRS : "initiates"
+    REPAIRS ||--o{ REPAIR_EVIDENCES : "contains"
+    USERS ||--o{ REPAIR_EVIDENCES : "uploads"
+    REPAIRS ||--o{ MESSAGES : "contains"
+    USERS ||--o{ MESSAGES : "sends"
 ```
 
 ## 2. 資料表詳細說明
@@ -79,3 +114,31 @@ erDiagram
 - `photo_type`: TEXT, 必填, 照片類型 (move_in, move_out)
 - `file_url`: TEXT, 必填, 圖片存放路徑
 - `uploaded_at`: DATETIME, 必填, 上傳時間
+
+### REPAIRS
+報修單表，記錄房東與房客間的物品報修請求。
+- `id`: INTEGER, Primary Key
+- `contract_id`: INTEGER, 必填, Foreign Key (CONTRACTS.id)
+- `initiator_id`: INTEGER, 必填, Foreign Key (USERS.id)
+- `item_name`: TEXT, 必填, 損壞物品名稱
+- `description`: TEXT, 報修詳細說明
+- `status`: TEXT, 必填, 狀態 (pending, reviewing, resolved)
+- `created_at`: DATETIME, 必填, 發起時間
+- `updated_at`: DATETIME, 最後更新時間
+
+### REPAIR_EVIDENCES
+報修證據表，記錄物品的原本狀態與損壞狀態。
+- `id`: INTEGER, Primary Key
+- `repair_id`: INTEGER, 必填, Foreign Key (REPAIRS.id)
+- `uploader_id`: INTEGER, 必填, Foreign Key (USERS.id)
+- `evidence_type`: TEXT, 必填, 證據類型 (original, broken)
+- `file_url`: TEXT, 必填, 檔案存放路徑(照片或影片)
+- `uploaded_at`: DATETIME, 必填, 上傳時間
+
+### MESSAGES
+報修留言板，記錄雙方的溝通內容作為證據。
+- `id`: INTEGER, Primary Key
+- `repair_id`: INTEGER, 必填, Foreign Key (REPAIRS.id)
+- `sender_id`: INTEGER, 必填, Foreign Key (USERS.id)
+- `content`: TEXT, 必填, 留言內容
+- `created_at`: DATETIME, 必填, 留言時間

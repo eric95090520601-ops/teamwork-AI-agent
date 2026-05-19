@@ -46,3 +46,40 @@ class DisputeEvidence(db.Model):
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     uploader = db.relationship('User')
+
+class Repair(db.Model):
+    __tablename__ = 'repairs'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    contract_id = db.Column(db.Integer, db.ForeignKey('contracts.id'), nullable=False)
+    initiator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    item_name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    status = db.Column(db.String(20), nullable=False, default='pending') # pending, reviewing, resolved
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    contract = db.relationship('Contract')
+    initiator = db.relationship('User', foreign_keys=[initiator_id])
+    evidences = db.relationship('RepairEvidence', backref='repair', lazy=True)
+    messages = db.relationship('Message', backref='repair', lazy=True, order_by='Message.created_at')
+
+class RepairEvidence(db.Model):
+    __tablename__ = 'repair_evidences'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repair_id = db.Column(db.Integer, db.ForeignKey('repairs.id'), nullable=False)
+    uploader_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    evidence_type = db.Column(db.String(20), nullable=False) # original, broken
+    file_url = db.Column(db.String(255), nullable=False)
+    uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    uploader = db.relationship('User')
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    repair_id = db.Column(db.Integer, db.ForeignKey('repairs.id'), nullable=False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    sender = db.relationship('User')

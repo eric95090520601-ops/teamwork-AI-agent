@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>發起報修 - 報修與溝通中心</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; color: #34495e; }
+        input[type="text"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        input[type="file"] { display: block; margin-top: 5px; }
+        .btn { display: block; width: 100%; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 6px; font-size: 1.1em; cursor: pointer; transition: 0.3s; }
+        .btn:hover { background-color: #2980b9; }
+        .note { font-size: 0.9em; color: #7f8c8d; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>發起新報修</h1>
+        <p style="text-align:center;">登入身分：{{ user.username }}</p>
+        
+        <form action="{{ url_for('repair.create_repair') }}" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="item_name">損壞物品名稱：</label>
+                <input type="text" id="item_name" name="item_name" required placeholder="例如：客廳冷氣、浴室水龍頭">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">詳細描述：</label>
+                <textarea id="description" name="description" rows="4" placeholder="請描述損壞的情形與發生時間..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="original_files">上傳「原本狀態」照片/影片 (對比用)：</label>
+                <input type="file" id="original_files" name="original" accept="image/*,video/*" multiple>
+                <div class="note">可上傳當初入住時的照片作為對比。</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="broken_files">上傳「損壞狀態」照片/影片：</label>
+                <input type="file" id="broken_files" name="broken" accept="image/*,video/*" multiple required>
+                <div class="note">請清晰拍攝目前損壞的部分。</div>
+            </div>
+            
+            <button type="submit" class="btn">送出報修單</button>
+        </form>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('repair.list_repairs') }}">返回列表</a>
+        </div>
+    </div>
+</body>
+</html>

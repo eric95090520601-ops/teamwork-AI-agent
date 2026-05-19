@@ -1,6 +1,7 @@
 from flask import Flask
 from app.models.models import db
 from app.routes.dispute_routes import dispute_bp
+from app.routes.repair import bp as repair_bp
 import os
 
 def create_app():
@@ -21,6 +22,7 @@ def create_app():
         db.create_all() # Creates tables based on models if they don't exist
         
     app.register_blueprint(dispute_bp)
+    app.register_blueprint(repair_bp)
     
     @app.route('/')
     def index():
@@ -29,6 +31,7 @@ def create_app():
         <ul>
             <li><a href="/disputes/create/1">房客/房東：發起爭議 (測試合約ID=1)</a></li>
             <li><a href="/admin/disputes">管理員：進入爭議案件列表</a></li>
+            <li><a href="/repairs/">報修與溝通中心：報修列表</a></li>
         </ul>
         '''
         
