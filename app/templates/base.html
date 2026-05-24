@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SafeRent 反詐租屋平台 — 安全、透明的線上繳租與找房系統">
     <title>SafeRent - 反詐租屋平台</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/property_filter.css') }}">
 </head>
 <body>
     <nav class="navbar">
@@ -16,6 +17,7 @@
             </a>
             <ul class="nav-links">
                 <li><a href="{{ url_for('payment.index') }}">儀表板</a></li>
+                <li><a href="{{ url_for('property.property_list') }}">🔍 找房源</a></li>
                 <li><a href="{{ url_for('payment.payment_history') }}">繳費紀錄</a></li>
                 <li class="user-profile">
                     <span class="avatar"></span>
