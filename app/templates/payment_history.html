@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="history-page">
+    <header class="page-header">
+        <h1>繳費紀錄</h1>
+        <p class="subtitle">您所有的租金繳交紀錄都在這裡，安全且透明。</p>
+    </header>
+
+    <div class="glass-card table-container">
+        {% if payments %}
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>繳費時間</th>
+                        <th>租屋處</th>
+                        <th>繳款方式</th>
+                        <th>金額 (NT$)</th>
+                        <th>狀態</th>
+                        <th>收據</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                        <tr>
+                            <td class="date-col">{{ payment.payment_date }}</td>
+                            <td>{{ payment.address }}</td>
+                            <td>{{ payment.payment_method }}</td>
+                            <td class="amount-col">{{ "{:,}".format(payment.amount) }}</td>
+                            <td>
+                                {% if payment.status == 'Completed' %}
+                                    <span class="badge badge-success">交易成功</span>
+                                {% else %}
+                                    <span class="badge badge-warning">{{ payment.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-icon btn-outline" title="下載收據">📄</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>目前尚無任何繳費紀錄。</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

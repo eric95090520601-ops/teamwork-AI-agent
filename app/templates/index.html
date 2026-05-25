@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard">
+    <header class="page-header">
+        <h1>租客儀表板</h1>
+        <p class="subtitle">歡迎回來，{{ user.username }}。您的租屋狀態一切正常。</p>
+    </header>
+
+    <div class="card-grid">
+        <!-- 租約資訊 -->
+        <div class="glass-card status-card">
+            <span class="card-icon">🏠</span>
+            <h3>目前租約</h3>
+            <p class="address">{{ lease.address }}</p>
+            <div class="lease-dates">
+                <span>📅 {{ lease.start_date }}</span>
+                <span style="color: var(--text-muted);">—</span>
+                <span>{{ lease.end_date }}</span>
+            </div>
+            <div class="lease-status-badge">租約有效中</div>
+        </div>
+
+        <!-- 數位點交 -->
+        <div class="glass-card status-card" style="border-color: rgba(16, 217, 138, 0.2); background: linear-gradient(135deg, rgba(16, 217, 138, 0.05), rgba(79, 142, 247, 0.05));">
+            <span class="card-icon">🔑</span>
+            <h3>數位點交憑證</h3>
+            <p class="address" style="margin-bottom: 0.5rem;">入住數位點交防詐保護</p>
+            <div class="lease-dates">
+                <span>🛡️ 已啟用防篡改時間戳記保護</span>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('check_in.handover_page') }}" class="btn btn-primary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📸 開始點交
+                </a>
+                <a href="{{ url_for('check_in.handover_history_page') }}" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📜 檢視歷史
+                </a>
+            </div>
+        </div>
+
+        <!-- 本期應繳 -->
+        <div class="glass-card payment-card highlight-card">
+            <h3>本期應繳房租</h3>
+            <div class="amount"><span>NT$</span>{{ "{:,}".format(lease.monthly_rent) }}</div>
+            <p class="due-date">📆 繳款期限：本月 5 日前</p>
+            <div class="security-badge">🛡️ 平台擔保交易</div>
+            <a href="{{ url_for('payment.new_payment') }}" class="btn btn-primary btn-glow btn-block">
+                💳 立即線上繳款
+            </a>
+        </div>
+    </div>
+
+    <!-- 快速連結 -->
+    <div class="glass-card mt-4" style="padding: 1.25rem 2rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem; color: var(--text-secondary); font-size:0.9rem;">
+                <span style="font-size:1.3rem;">📄</span>
+                <span>查看過往繳費紀錄，確保每一筆交易都有憑有據</span>
+            </div>
+            <a href="{{ url_for('payment.payment_history') }}" class="btn btn-secondary" style="white-space:nowrap;">
+                查看紀錄 →
+            </a>
+        </div>
+    </div>
+
+    <!-- 反詐騙提醒 -->
+    <div class="security-banner mt-4">
+        <div class="banner-icon">🔒</div>
+        <div class="banner-text">
+            <h4>反詐騙安全提醒</h4>
+            <p>請一律透過 SafeRent 平台進行繳費。切勿聽信來電要求操作 ATM 或轉帳至不明個人戶頭。本平台不會主動要求您提供完整信用卡資訊於非官方頁面。</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
