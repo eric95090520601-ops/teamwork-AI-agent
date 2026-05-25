@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="legal-container mt-4 mb-5">
+    <div class="page-header" style="margin-bottom: 2rem;">
+        <h1>⚖️ 租屋法律查詢</h1>
+        <p class="subtitle text-muted">遇到租屋糾紛嗎？快速尋找常見法律問答與法規依據。</p>
+    </div>
+
+    <!-- 搜尋與過濾區塊 -->
+    <div class="glass-card mb-4" style="padding: 1.5rem; border-radius: 12px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);">
+        <form method="GET" action="{{ url_for('legal.legal_faq') }}" style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: flex-end;">
+            <div style="flex: 1; min-width: 250px;">
+                <label for="q" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">關鍵字搜尋</label>
+                <div style="display: flex; background: white; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden;">
+                    <span style="padding: 0.75rem 1rem; color: #6b7280; background: #f9fafb;">🔍</span>
+                    <input type="text" id="q" name="q" placeholder="例如：押金、修繕、解約..." value="{{ search_query }}" style="border: none; outline: none; padding: 0.75rem; width: 100%;">
+                </div>
+            </div>
+            
+            <div style="flex: 0 1 200px; min-width: 150px;">
+                <label for="category" style="font-weight: 500; margin-bottom: 0.5rem; display: block;">分類過濾</label>
+                <select id="category" name="category" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; outline: none; background: white;">
+                    <option value="">所有分類</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="flex: 0 0 auto;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; height: 100%;">查詢</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FAQ 列表 -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        {% if faqs %}
+            {% for faq in faqs %}
+            <div class="glass-card faq-card" style="padding: 1.5rem; position: relative; overflow: hidden; display: flex; flex-direction: column;">
+                <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary-color);"></div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <span style="background: var(--bg-color); color: var(--text-secondary); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--border-color);">
+                        {{ faq.category }}
+                    </span>
+                </div>
+                
+                <h4 style="color: var(--text-color); font-weight: 600; margin-bottom: 1rem; line-height: 1.4;">{{ faq.question }}</h4>
+                <p style="color: var(--text-secondary); line-height: 1.6; flex-grow: 1;">{{ faq.answer }}</p>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.25rem 0;">
+                
+                <div style="font-size: 0.85rem; color: #10b981; display: flex; align-items: flex-start; gap: 0.5rem; line-height: 1.4;">
+                    <span>📖 法規參考：</span>
+                    <strong>{{ faq.reference_law }}</strong>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 2rem; background: rgba(255,255,255,0.5); border-radius: 12px;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🤔</div>
+                <h4 style="margin-bottom: 0.5rem; color: var(--text-color);">找不到相關的法律問答</h4>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">請嘗試更換關鍵字，或聯絡專業法律諮詢單位。</p>
+                <a href="{{ url_for('legal.legal_faq') }}" class="btn btn-secondary">清除搜尋條件</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.faq-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.faq-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+</style>
+{% endblock %}

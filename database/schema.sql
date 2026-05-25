@@ -57,3 +57,12 @@ CREATE TABLE IF NOT EXISTS properties (
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY(landlord_id) REFERENCES landlords(id)
 );
+
+-- ===== 法律問答資料表 =====
+CREATE TABLE IF NOT EXISTS legal_faqs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    reference_law TEXT NOT NULL
+);
