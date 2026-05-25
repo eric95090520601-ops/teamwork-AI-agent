@@ -1,4 +1,4 @@
-from app import create_app
+from main import create_app
 from app.models.models import db, User, Contract
 import os
 
@@ -8,6 +8,8 @@ with app.app_context():
     db.create_all()
     
     # 清空現有資料 (避免重複)
+    from app.models.models import LandlordVerification
+    LandlordVerification.query.delete()
     User.query.delete()
     Contract.query.delete()
     

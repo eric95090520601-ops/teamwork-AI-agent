@@ -8,6 +8,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(50), nullable=False)
     role = db.Column(db.String(20), nullable=False) # admin, landlord, tenant
+    is_verified = db.Column(db.Boolean, default=False)
 
 class Contract(db.Model):
     __tablename__ = 'contracts'
@@ -46,3 +47,18 @@ class DisputeEvidence(db.Model):
     uploaded_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     uploader = db.relationship('User')
+
+class LandlordVerification(db.Model):
+    __tablename__ = 'landlord_verifications'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    landlord_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    id_card_url = db.Column(db.String(255), nullable=False)
+    property_cert_url = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default='pending') # pending, approved, rejected
+    rejection_reason = db.Column(db.Text, nullable=True)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    reviewed_at = db.Column(db.DateTime, nullable=True)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
+
+    landlord = db.relationship('User', foreign_keys=[landlord_id])
+    reviewer = db.relationship('User', foreign_keys=[reviewer_id])

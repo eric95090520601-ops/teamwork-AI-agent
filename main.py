@@ -1,6 +1,7 @@
 from flask import Flask
 from app.models.models import db
 from app.routes.dispute_routes import dispute_bp
+from app.routes.verification_routes import verification_bp
 import os
 
 def create_app():
@@ -21,6 +22,7 @@ def create_app():
         db.create_all() # Creates tables based on models if they don't exist
         
     app.register_blueprint(dispute_bp)
+    app.register_blueprint(verification_bp)
     
     @app.route('/')
     def index():
@@ -29,6 +31,9 @@ def create_app():
         <ul>
             <li><a href="/disputes/create/1">房客/房東：發起爭議 (測試合約ID=1)</a></li>
             <li><a href="/admin/disputes">管理員：進入爭議案件列表</a></li>
+            <li><a href="/verify/apply">房東：申請真房東認證</a></li>
+            <li><a href="/verify/status">房東：查看認證狀態</a></li>
+            <li><a href="/admin/verifications">管理員：審核真房東申請</a></li>
         </ul>
         '''
         
