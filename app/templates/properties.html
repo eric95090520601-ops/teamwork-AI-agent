@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="property-search-page">
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>🔍 進階房源搜尋</h1>
+        <p class="subtitle">
+            共找到 <strong style="color: var(--accent-primary);">{{ properties|length }}</strong> 筆符合條件的房源
+            {% if stats and stats['total'] %} · 平均租金 NT$ {{ "{:,.0f}".format(stats['avg_rent']) }}{% endif %}
+        </p>
+    </header>
+
+    <div class="search-layout">
+
+        <!-- ===== 左側篩選面板 ===== -->
+        <aside class="filter-panel glass-card">
+            <div class="filter-panel-header">
+                <span>⚙️ 篩選條件</span>
+                <a href="{{ url_for('property.property_list') }}" class="clear-btn">清除全部</a>
+            </div>
+
+            <form id="filterForm" method="GET" action="{{ url_for('property.property_list') }}">
+
+                <!-- 1. 租金範圍 -->
+                <div class="filter-section">
+                    <div class="filter-title">💰 租金範圍</div>
+                    <div class="rent-options">
+                        {% for r_min, r_max, label in rent_ranges %}
+                        <label class="filter-chip {% if selected_rent_min == r_min and selected_rent_max == r_max %}active{% endif %}">
+                            <input type="radio" name="rent_range_select" value="{{ r_min }}|{{ r_max }}"
+                                   {% if selected_rent_min == r_min and selected_rent_max == r_max %}checked{% endif %}>
+                            {{ label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <!-- 隱藏欄位，由 JS 填入 -->
+                    <input type="hidden" id="rent_min" name="rent_min" value="{{ selected_rent_min }}">
+                    <input type="hidden" id="rent_max" name="rent_max" value="{{ selected_rent_max }}">
+                    <!-- 自訂金額輸入 -->
+                    <div class="custom-rent-row">
+                        <input type="number" id="custom_rent_min" placeholder="最低" class="input-field input-sm"
+                               value="{{ selected_rent_min }}" min="0" step="1000">
+                        <span class="rent-separator">—</span>
+                        <input type="number" id="custom_rent_max" placeholder="最高" class="input-field input-sm"
+                               value="{{ selected_rent_max }}" min="0" step="1000">
+                    </div>
+                </div>
+
+                <!-- 2. 格局 / 房型 -->
+                <div class="filter-section">
+                    <div class="filter-title">🛏️ 格局 / 房型</div>
+                    <div class="checkbox-list">
+                        {% for value, label in all_room_types %}
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="room_type" value="{{ value }}"
+                                   {% if value in selected_room_types %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                            {{ label }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 3. 區域 -->
+                <div class="filter-section">
+                    <div class="filter-title">📍 行政區域（台中市）</div>
+                    <div class="district-grid">
+                        {% for district in all_districts %}
+                        <label class="filter-chip sm {% if district in selected_districts %}active{% endif %}">
+                            <input type="checkbox" name="district" value="{{ district }}"
+                                   {% if district in selected_districts %}checked{% endif %}>
+                            {{ district }}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- 4. 特色篩選 -->
+                <div class="filter-section">
+                    <div class="filter-title">✨ 特色條件</div>
+                    <div class="toggle-list">
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <span class="toggle-icon">🧾</span>
+                                <div>
+                                    <strong>可報稅</strong>
+                                    <p>房東提供租賃憑證，可申報綜合所得稅</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch-wrap">
+                                <input type="checkbox" id="tax_toggle" name="is_tax_deductible"
+                                       {% if is_tax_deductible %}checked{% endif %}>
+                                <span class="toggle-switch"></span>
+                            </div>
+                        </label>
+
+                        <label class="toggle-item">
+                            <div class="toggle-info">
+                                <span class="toggle-icon">🏛️</span>
+                                <div>
+                                    <strong>可申請租屋補助</strong>
+                                    <p>符合政府租金補貼申請資格</p>
+                                </div>
+                            </div>
+                            <div class="toggle-switch-wrap">
+                                <input type="checkbox" id="subsidy_toggle" name="is_subsidy_eligible"
+                                       {% if is_subsidy_eligible %}checked{% endif %}>
+                                <span class="toggle-switch"></span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 5. 房東評價 -->
+                <div class="filter-section">
+                    <div class="filter-title">⭐ 房東最低評分</div>
+                    <div class="rating-filter">
+                        {% for score in [0, 3.0, 3.5, 4.0, 4.5] %}
+                        <label class="filter-chip {% if selected_min_rating == (score|string) or (score == 0 and not selected_min_rating) %}active{% endif %}">
+                            <input type="radio" name="min_rating" value="{{ score if score > 0 else '' }}"
+                                   {% if selected_min_rating == (score|string) or (score == 0 and not selected_min_rating) %}checked{% endif %}>
+                            {% if score == 0 %}不限{% else %}{{ score }}★ 以上{% endif %}
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-glow" id="applyFilterBtn">
+                    套用篩選
+                </button>
+            </form>
+        </aside>
+
+        <!-- ===== 右側房源列表 ===== -->
+        <main class="results-area">
+
+            <!-- 排序列 -->
+            <div class="results-toolbar">
+                <div class="active-filters" id="activeFilterTags">
+                    {% if selected_rent_min or selected_rent_max %}
+                    <span class="filter-tag">💰 {{ selected_rent_label }}</span>
+                    {% endif %}
+                    {% for rt in selected_room_types %}
+                    <span class="filter-tag">🛏️ {{ rt }}</span>
+                    {% endfor %}
+                    {% for d in selected_districts %}
+                    <span class="filter-tag">📍 {{ d }}</span>
+                    {% endfor %}
+                    {% if is_tax_deductible %}<span class="filter-tag">🧾 可報稅</span>{% endif %}
+                    {% if is_subsidy_eligible %}<span class="filter-tag">🏛️ 可申請補助</span>{% endif %}
+                    {% if selected_min_rating %}<span class="filter-tag">⭐ {{ selected_min_rating }}★ 以上</span>{% endif %}
+                </div>
+
+                <div class="sort-control">
+                    <label for="sortSelect" style="color:var(--text-muted); font-size:0.85rem;">排序：</label>
+                    <select id="sortSelect" name="sort_by" class="sort-select" onchange="applySort(this.value)">
+                        <option value="default" {% if selected_sort_by == 'default' %}selected{% endif %}>預設排序</option>
+                        <option value="rent_asc" {% if selected_sort_by == 'rent_asc' %}selected{% endif %}>租金由低到高</option>
+                        <option value="rent_desc" {% if selected_sort_by == 'rent_desc' %}selected{% endif %}>租金由高到低</option>
+                        <option value="rating_desc" {% if selected_sort_by == 'rating_desc' %}selected{% endif %}>房東評分最高</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 房源卡片列表 -->
+            {% if properties %}
+            <div class="property-grid">
+                {% for prop in properties %}
+                <div class="property-card glass-card">
+
+                    <!-- 圖片區 -->
+                    <div class="property-image">
+                        <div class="property-img-placeholder">
+                            {% if prop.room_type == '套房' %}🛋️
+                            {% elif prop.room_type == '雅房' %}🪑
+                            {% elif prop.room_type == '整層住家' %}🏠
+                            {% else %}🏢{% endif %}
+                        </div>
+                        <!-- 標籤 -->
+                        <div class="property-badges">
+                            {% if prop.is_tax_deductible %}
+                            <span class="prop-badge badge-tax">🧾 可報稅</span>
+                            {% endif %}
+                            {% if prop.is_subsidy_eligible %}
+                            <span class="prop-badge badge-subsidy">🏛️ 補助</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 內容區 -->
+                    <div class="property-body">
+                        <div class="property-meta">
+                            <span class="room-type-tag">{{ prop.room_type }}</span>
+                            <span class="property-district">📍 {{ prop.district }}</span>
+                        </div>
+
+                        <h2 class="property-title">{{ prop.title }}</h2>
+                        <p class="property-address">{{ prop.address }}</p>
+
+                        <div class="property-details">
+                            <span>{{ prop.area_sqm }} 坪</span>
+                            <span>{{ prop.floor }}/{{ prop.total_floors }} 樓</span>
+                        </div>
+
+                        <div class="property-footer">
+                            <div class="property-price">
+                                <span class="price-currency">NT$</span>
+                                <span class="price-amount">{{ "{:,}".format(prop.rent_price) }}</span>
+                                <span class="price-unit">/ 月</span>
+                            </div>
+
+                            <!-- 房東評分 -->
+                            <div class="landlord-rating">
+                                <div class="stars-display">
+                                    {% set rating = prop.rating_score %}
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= rating %}
+                                        <span class="star full">★</span>
+                                        {% elif i - 0.5 <= rating %}
+                                        <span class="star half">★</span>
+                                        {% else %}
+                                        <span class="star empty">☆</span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-score">{{ "%.1f"|format(prop.rating_score) }}</span>
+                                <span class="rating-count">({{ prop.review_count }} 則評價)</span>
+                            </div>
+                        </div>
+
+                        <div class="landlord-info">
+                            <span class="landlord-avatar">👤</span>
+                            <span class="landlord-name">{{ prop.landlord_name }}</span>
+                            <span class="verified-badge">✓ 平台認證</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <!-- 無結果 -->
+            <div class="no-results glass-card">
+                <div class="no-results-icon">🔍</div>
+                <h3>找不到符合條件的房源</h3>
+                <p>試試放寬篩選條件，或<a href="{{ url_for('property.property_list') }}">清除所有篩選</a>查看全部房源。</p>
+            </div>
+            {% endif %}
+
+        </main>
+    </div>
+</div>
+
+<script>
+// 排序選單切換
+function applySort(value) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort_by', value);
+    window.location.href = url.toString();
+}
+
+// 租金區間 radio 切換
+document.querySelectorAll('input[name="rent_range_select"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        const [min, max] = e.target.value.split('|');
+        document.getElementById('rent_min').value = min;
+        document.getElementById('rent_max').value = max;
+        document.getElementById('custom_rent_min').value = min;
+        document.getElementById('custom_rent_max').value = max;
+        // 更新 chip 樣式
+        document.querySelectorAll('.rent-options .filter-chip').forEach(c => c.classList.remove('active'));
+        e.target.closest('.filter-chip').classList.add('active');
+    });
+});
+
+// 自訂租金輸入同步
+document.getElementById('custom_rent_min').addEventListener('input', e => {
+    document.getElementById('rent_min').value = e.target.value;
+    clearRentRadio();
+});
+document.getElementById('custom_rent_max').addEventListener('input', e => {
+    document.getElementById('rent_max').value = e.target.value;
+    clearRentRadio();
+});
+
+function clearRentRadio() {
+    document.querySelectorAll('input[name="rent_range_select"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.rent-options .filter-chip').forEach(c => c.classList.remove('active'));
+}
+
+// checkbox / radio chip 樣式同步
+document.querySelectorAll('.filter-chip input').forEach(input => {
+    input.addEventListener('change', () => {
+        const chip = input.closest('.filter-chip');
+        if (input.type === 'checkbox') {
+            chip.classList.toggle('active', input.checked);
+        } else {
+            document.querySelectorAll(`input[name="${input.name}"]`).forEach(r => {
+                r.closest('.filter-chip')?.classList.remove('active');
+            });
+            if (input.checked) chip.classList.add('active');
+        }
+    });
+});
+
+// Toggle switch 樣式
+document.querySelectorAll('.toggle-item input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', () => {
+        input.closest('.toggle-item').classList.toggle('active', input.checked);
+    });
+    // 初始化狀態
+    if (input.checked) input.closest('.toggle-item').classList.add('active');
+});
+
+// 按下「套用篩選」時的 loading 效果
+document.getElementById('applyFilterBtn').addEventListener('click', function() {
+    this.classList.add('loading');
+    this.textContent = '  搜尋中...';
+});
+</script>
+{% endblock %}

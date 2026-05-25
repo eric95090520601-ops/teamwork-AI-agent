@@ -1,0 +1,518 @@
+/* ===================================================
+   property_filter.css — 進階房源篩選專屬樣式
+   Branch: D1490003
+   =================================================== */
+
+/* ===== 整體佈局 ===== */
+.property-search-page { }
+
+.search-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ===== 篩選面板 ===== */
+.filter-panel {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+    padding: 1.5rem;
+}
+
+.filter-panel::-webkit-scrollbar { width: 4px; }
+.filter-panel::-webkit-scrollbar-track { background: transparent; }
+.filter-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 999px; }
+
+.filter-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.clear-btn {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid var(--glass-border);
+    transition: var(--transition);
+}
+.clear-btn:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: var(--danger-bg);
+}
+
+/* ===== 篩選區塊 ===== */
+.filter-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.filter-section:last-of-type { border-bottom: none; margin-bottom: 1rem; }
+
+.filter-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+/* ===== 篩選 Chips ===== */
+.rent-options,
+.rating-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.filter-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+    white-space: nowrap;
+}
+.filter-chip input { display: none; }
+.filter-chip:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(79, 142, 247, 0.06);
+}
+.filter-chip.active {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    background: rgba(79, 142, 247, 0.12);
+    font-weight: 600;
+}
+.filter-chip.sm {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.78rem;
+}
+
+/* ===== 自訂租金輸入 ===== */
+.custom-rent-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+.input-sm {
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+}
+.rent-separator {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+/* ===== 區域 Grid ===== */
+.district-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+/* ===== Checkbox 列表 ===== */
+.checkbox-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 0.35rem 0;
+    transition: color 0.2s;
+    user-select: none;
+}
+.checkbox-item:hover { color: var(--text-primary); }
+.checkbox-item input[type="checkbox"] { display: none; }
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--glass-border-hover);
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: var(--transition);
+    position: relative;
+    background: transparent;
+}
+.checkbox-item input:checked ~ .checkmark {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+.checkbox-item input:checked ~ .checkmark::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+}
+.checkbox-item input:checked ~ :not(.checkmark) { color: var(--text-primary); }
+
+/* ===== Toggle Switch ===== */
+.toggle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.toggle-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+.toggle-item:hover {
+    border-color: var(--glass-border-hover);
+    background: var(--glass-bg);
+}
+.toggle-item.active {
+    border-color: rgba(79,142,247,0.3);
+    background: rgba(79,142,247,0.06);
+}
+.toggle-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+}
+.toggle-icon { font-size: 1.2rem; flex-shrink: 0; }
+.toggle-info strong {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    margin-bottom: 0.15rem;
+}
+.toggle-info p {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin: 0;
+}
+.toggle-switch-wrap { flex-shrink: 0; }
+.toggle-switch-wrap input[type="checkbox"] { display: none; }
+.toggle-switch {
+    display: block;
+    width: 40px;
+    height: 22px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+    position: relative;
+    transition: background 0.3s;
+    cursor: pointer;
+}
+.toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.toggle-switch-wrap input:checked ~ .toggle-switch {
+    background: var(--accent-primary);
+}
+.toggle-switch-wrap input:checked ~ .toggle-switch::after {
+    transform: translateX(18px);
+}
+
+/* ===== 結果工具列 ===== */
+.results-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    flex: 1;
+}
+.filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.8rem;
+    background: rgba(79,142,247,0.1);
+    border: 1px solid rgba(79,142,247,0.25);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--accent-primary);
+    font-weight: 500;
+}
+.sort-control { display: flex; align-items: center; gap: 0.5rem; }
+.sort-select {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 0.45rem 0.85rem;
+    font-size: 0.875rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.sort-select:focus { outline: none; border-color: var(--accent-primary); }
+
+/* ===== 房源 Grid ===== */
+.property-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+}
+
+/* ===== 房源卡片 ===== */
+.property-card {
+    padding: 0;
+    overflow: hidden;
+    cursor: pointer;
+    transition: var(--transition);
+    animation: cardIn 0.4s ease both;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+    border-color: rgba(79,142,247,0.3);
+}
+
+/* 圖片區 */
+.property-image {
+    position: relative;
+    height: 160px;
+    background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,58,237,0.08));
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.property-img-placeholder {
+    font-size: 5rem;
+    opacity: 0.35;
+    transition: opacity 0.3s, transform 0.3s;
+}
+.property-card:hover .property-img-placeholder {
+    opacity: 0.55;
+    transform: scale(1.05);
+}
+.property-badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    display: flex;
+    gap: 0.4rem;
+}
+.prop-badge {
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+}
+.badge-tax {
+    background: rgba(16,217,138,0.2);
+    border: 1px solid rgba(16,217,138,0.4);
+    color: var(--success);
+}
+.badge-subsidy {
+    background: rgba(79,142,247,0.2);
+    border: 1px solid rgba(79,142,247,0.4);
+    color: #93c5fd;
+}
+
+/* 卡片內容 */
+.property-body { padding: 1.25rem; }
+
+.property-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+}
+.room-type-tag {
+    padding: 0.2rem 0.65rem;
+    background: rgba(124,58,237,0.15);
+    border: 1px solid rgba(124,58,237,0.3);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #c4b5fd;
+}
+.property-district {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.property-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.property-address {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.property-details {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.875rem;
+}
+.property-details span::before { margin-right: 0.2rem; }
+
+.property-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.875rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.property-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+}
+.price-currency {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+.price-amount {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+.price-unit {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* 星評 */
+.landlord-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.stars-display { display: flex; gap: 1px; }
+.star { font-size: 0.8rem; line-height: 1; }
+.star.full { color: var(--warning); }
+.star.half { color: var(--warning); opacity: 0.6; }
+.star.empty { color: var(--text-muted); }
+.rating-score {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--warning);
+}
+.rating-count {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* 房東資訊 */
+.landlord-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+}
+.landlord-avatar { font-size: 1rem; }
+.landlord-name { color: var(--text-secondary); font-weight: 500; }
+.verified-badge {
+    font-size: 0.72rem;
+    color: var(--success);
+    background: var(--success-bg);
+    border: 1px solid rgba(16,217,138,0.25);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+/* ===== 無結果狀態 ===== */
+.no-results {
+    text-align: center;
+    padding: 5rem 2rem;
+}
+.no-results-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.4; }
+.no-results h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+.no-results p { color: var(--text-muted); }
+.no-results a { color: var(--accent-primary); text-decoration: none; }
+.no-results a:hover { text-decoration: underline; }
+
+/* ===== 響應式 ===== */
+@media (max-width: 1024px) {
+    .search-layout { grid-template-columns: 260px 1fr; }
+}
+
+@media (max-width: 768px) {
+    .search-layout { grid-template-columns: 1fr; }
+    .filter-panel { position: static; max-height: none; }
+    .property-grid { grid-template-columns: 1fr; }
+    .results-toolbar { flex-direction: column; align-items: flex-start; }
+}
