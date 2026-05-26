@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 from app.models.models import db
 from app.routes.dispute_routes import dispute_bp
 from app.routes.repair import bp as repair_bp
@@ -26,14 +26,7 @@ def create_app():
     
     @app.route('/')
     def index():
-        return '''
-        <h1>歡迎來到租屋網站！</h1>
-        <ul>
-            <li><a href="/disputes/create/1">房客/房東：發起爭議 (測試合約ID=1)</a></li>
-            <li><a href="/admin/disputes">管理員：進入爭議案件列表</a></li>
-            <li><a href="/repairs/">報修與溝通中心：報修列表</a></li>
-        </ul>
-        '''
+        return render_template('index.html')
         
     return app
 

@@ -1,16 +1,87 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>發起爭議 (合約 ID: {{ contract_id }})</h2>
-<div class="card mt-4">
-    <div class="card-body">
-        <form method="POST">
-            <div class="mb-3">
-                <label for="reason" class="form-label">請說明爭議原因（例如：退租時房東要求扣除不合理押金）</label>
-                <textarea class="form-control" id="reason" name="reason" rows="4" required></textarea>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a href="/" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                <i class="bi bi-arrow-left fs-5"></i>
+            </a>
+            <div>
+                <h2 class="mb-0">發起爭議仲裁</h2>
+                <p class="text-muted mb-0">合約案件 ID: #{{ contract_id }}</p>
             </div>
-            <button type="submit" class="btn btn-primary">送出爭議並前往上傳證據</button>
-        </form>
+        </div>
+
+        <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <form method="POST" enctype="multipart/form-data">
+                    <!-- 爭議原因 -->
+                    <div class="mb-4">
+                        <label for="reason" class="form-label fs-5 fw-bold mb-2">
+                            <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i>請說明爭議原因
+                        </label>
+                        <textarea class="form-control rounded-3" id="reason" name="reason" rows="4" 
+                            placeholder="例如：退租時房東要求扣除不合理清潔費 3,000 元，但入住時該汙損即已存在..." required></textarea>
+                    </div>
+
+                    <hr class="my-4 text-muted opacity-25">
+
+                    <!-- 照片上傳區 -->
+                    <h5 class="fw-bold mb-3"><i class="bi bi-images text-primary me-2"></i>提供對比證據照片</h5>
+                    <p class="text-muted small mb-4">請選取入住與退租時的屋況照片（可選取多張）。系統將自動分類，以便管理員進行客觀裁決。</p>
+
+                    <div class="row g-4">
+                        <!-- 入住點交照片 -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-4 border border-2 border-dashed bg-light text-center h-100 d-flex flex-column justify-content-center">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-2 mb-2"></i>
+                                <label for="move_in_photos" class="form-label fw-bold">入住時點交照片</label>
+                                <p class="text-muted small mb-3">（可選多張，僅限圖片）</p>
+                                <input type="file" id="move_in_photos" name="move_in_photos" class="form-control btn-light" accept="image/*" multiple>
+                            </div>
+                        </div>
+
+                        <!-- 退租屋況照片 -->
+                        <div class="col-md-6">
+                            <div class="p-3 rounded-4 border border-2 border-dashed bg-light text-center h-100 d-flex flex-column justify-content-center">
+                                <i class="bi bi-cloud-arrow-up-fill text-accent fs-2 mb-2" style="color: #ec4899;"></i>
+                                <label for="move_out_photos" class="form-label fw-bold">退租時屋況照片</label>
+                                <p class="text-muted small mb-3">（可選多張，僅限圖片）</p>
+                                <input type="file" id="move_out_photos" name="move_out_photos" class="form-control btn-light" accept="image/*" multiple>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning border-0 rounded-4 mt-4 d-flex align-items-start gap-2">
+                        <i class="bi bi-info-circle-fill text-warning fs-5"></i>
+                        <span class="small text-dark-emphasis">
+                            溫馨提示：提供清晰的局部對比照片（如牆壁、地板、家具折舊狀態）有助於加快仲裁進度。檔案大小建議限制在 5MB 以內。
+                        </span>
+                    </div>
+
+                    <!-- 提交按鈕 -->
+                    <div class="mt-4 pt-2 text-end">
+                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-3 py-3">
+                            <i class="bi bi-shield-check me-2"></i>一鍵發起並上傳所有證據
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .border-dashed {
+        border-style: dashed !important;
+        border-color: #cbd5e1 !important;
+        background-color: rgba(248, 250, 252, 0.6) !important;
+        transition: all 0.2s ease;
+    }
+    .border-dashed:hover {
+        border-color: #6366f1 !important;
+        background-color: rgba(248, 250, 252, 0.9) !important;
+    }
+</style>
 {% endblock %}

@@ -1,60 +1,69 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>報修與溝通中心 - 列表</title>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .btn { display: inline-block; padding: 10px 20px; background-color: #3498db; color: white; text-decoration: none; border-radius: 6px; transition: 0.3s; margin-bottom: 20px; }
-        .btn:hover { background-color: #2980b9; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; text-align: left; }
-        th { background-color: #ecf0f1; }
-        tr:hover { background-color: #f9f9f9; }
-        .status { padding: 4px 8px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
-        .status.pending { background-color: #f1c40f; color: #fff; }
-        .status.reviewing { background-color: #e67e22; color: #fff; }
-        .status.resolved { background-color: #2ecc71; color: #fff; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>報修與溝通中心</h1>
-        <p>目前登入身分：{{ user.username }} ({{ user.role }})</p>
-        
-        <a href="{{ url_for('repair.create_repair') }}" class="btn">+ 發起新報修</a>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>報修單號</th>
-                    <th>損壞物品</th>
-                    <th>狀態</th>
-                    <th>發起時間</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for repair in repairs %}
-                <tr>
-                    <td>#{{ repair.id }}</td>
-                    <td>{{ repair.item_name }}</td>
-                    <td><span class="status {{ repair.status }}">{{ repair.status }}</span></td>
-                    <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td><a href="{{ url_for('repair.detail', repair_id=repair.id) }}" class="btn" style="padding: 5px 10px; margin: 0; background-color: #2ecc71;">查看詳情</a></td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="5" style="text-align: center;">目前無報修紀錄。</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <br>
-        <a href="/">回首頁</a>
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-0">報修與溝通中心</h2>
+                <p class="text-muted mb-0">當前身份：{{ user.username }} ({{ '房客' if user.role == 'tenant' else '房東' }})</p>
+            </div>
+            <a href="{{ url_for('repair.create_repair') }}" class="btn btn-primary rounded-3">
+                <i class="bi bi-plus-circle me-1"></i>發起新報修
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="fw-bold mb-0 text-dark-emphasis">
+                    <i class="bi bi-wrench-adjustable-circle-fill text-indigo me-2"></i>修繕紀錄清單
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive px-4 pb-4">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>報修單號</th>
+                                <th>損壞物品</th>
+                                <th>發起時間</th>
+                                <th>修繕狀態</th>
+                                <th class="text-end">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for repair in repairs %}
+                            <tr>
+                                <td class="fw-bold text-indigo">#{{ repair.id }}</td>
+                                <td class="fw-semibold text-dark">{{ repair.item_name }}</td>
+                                <td class="text-muted">{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if repair.status == 'pending' %}
+                                        <span class="badge bg-warning"><i class="bi bi-hourglass-split me-1"></i>待處理</span>
+                                    {% elif repair.status == 'reviewing' %}
+                                        <span class="badge bg-info"><i class="bi bi-eye-fill me-1"></i>查檢中</span>
+                                    {% else %}
+                                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>已修復</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('repair.detail', repair_id=repair.id) }}" class="btn btn-outline-secondary btn-sm rounded-3 px-3">
+                                        <i class="bi bi-chat-left-dots me-1"></i>溝通/詳情
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <i class="bi bi-check2-circle fs-2 mb-2 d-block opacity-50 text-success"></i>
+                                    太棒了！目前沒有任何報修修繕單。
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
