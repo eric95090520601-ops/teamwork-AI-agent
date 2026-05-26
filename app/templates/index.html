@@ -21,6 +21,24 @@
             <div class="lease-status-badge">租約有效中</div>
         </div>
 
+        <!-- 數位點交 -->
+        <div class="glass-card status-card" style="border-color: rgba(16, 217, 138, 0.2); background: linear-gradient(135deg, rgba(16, 217, 138, 0.05), rgba(79, 142, 247, 0.05));">
+            <span class="card-icon">🔑</span>
+            <h3>數位點交憑證</h3>
+            <p class="address" style="margin-bottom: 0.5rem;">入住數位點交防詐保護</p>
+            <div class="lease-dates">
+                <span>🛡️ 已啟用防篡改時間戳記保護</span>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('check_in.handover_page') }}" class="btn btn-primary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📸 開始點交
+                </a>
+                <a href="{{ url_for('check_in.handover_history_page') }}" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📜 檢視歷史
+                </a>
+            </div>
+        </div>
+
         <!-- 本期應繳 -->
         <div class="glass-card payment-card highlight-card">
             <h3>本期應繳房租</h3>

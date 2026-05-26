@@ -66,3 +66,18 @@ CREATE TABLE IF NOT EXISTS legal_faqs (
     answer TEXT NOT NULL,
     reference_law TEXT NOT NULL
 );
+
+-- ===== 數位點交紀錄資料表 =====
+CREATE TABLE IF NOT EXISTS check_in_records (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,               -- 租客 ID (users.id)
+    property_id INTEGER NOT NULL,           -- 房源 ID (properties.id)
+    furniture_status TEXT,                  -- 家具狀況文字描述
+    furniture_photo_path TEXT,              -- 家具照片路徑
+    meter_value REAL NOT NULL,              -- 電表度數值
+    meter_photo_path TEXT NOT NULL,         -- 電表照片路徑
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')), -- 後端自動生成時間戳記
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(property_id) REFERENCES properties(id)
+);
+
