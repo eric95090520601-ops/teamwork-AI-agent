@@ -1,159 +1,136 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <!-- 頂部導覽與狀態 -->
-        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
-            <div class="d-flex align-items-center gap-3">
-                <a href="/" class="btn btn-outline-secondary btn-sm rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
-                    <i class="bi bi-arrow-left fs-5"></i>
-                </a>
-                <div>
-                    <h2 class="mb-0">爭議案件進度</h2>
-                    <p class="text-muted mb-0">案件編號: #{{ dispute.id }} | 關聯合約 ID: #{{ dispute.contract_id }}</p>
-                </div>
-            </div>
-            <div>
-                <span class="fs-6 py-2 px-3 badge 
-                    {% if dispute.status == 'pending' %}
-                        bg-warning
-                    {% elif dispute.status == 'resolved' %}
-                        bg-success
-                    {% else %}
-                        bg-info
-                    {% endif %}
-                ">
-                    {% if dispute.status == 'pending' %}
-                        <i class="bi bi-hourglass-split me-1"></i>等待仲裁處理
-                    {% elif dispute.status == 'resolved' %}
-                        <i class="bi bi-check-circle-fill me-1"></i>仲裁已裁決
-                    {% else %}
-                        <i class="bi bi-info-circle me-1"></i>{{ dispute.status }}
-                    {% endif %}
-                </span>
-            </div>
+<div class="payment-flow animate-fade-in" style="max-width: 1000px; margin: 0 auto;">
+    <!-- 頂部導覽與狀態 -->
+    <header class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;">
+        <div>
+            <h1>⚖️ 爭議案件進度</h1>
+            <p class="subtitle">案件編號: #{{ dispute.id }} | 租約編號: #{{ dispute.lease_id }}</p>
         </div>
-
-        <!-- 爭議原因與說明 -->
-        <div class="card border-0 mb-4 shadow-sm">
-            <div class="card-body">
-                <h5 class="fw-bold text-dark-emphasis mb-3">
-                    <i class="bi bi-chat-right-text text-indigo me-2"></i>發起爭議原因說明
-                </h5>
-                <p class="card-text bg-light p-3 rounded-3 text-dark mb-3" style="line-height: 1.6; white-space: pre-line;">
-                    {{ dispute.reason }}
-                </p>
-                <div class="text-muted small">
-                    <i class="bi bi-clock me-1"></i>發起時間：{{ dispute.created_at.strftime('%Y-%m-%d %H:%M') }}
-                </div>
-            </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <span class="lease-status-badge" style="
+                {% if dispute.status == 'pending' %}
+                    background: var(--warning-bg); border-color: rgba(251, 191, 36, 0.25); color: var(--warning);
+                {% else %}
+                    background: var(--success-bg); border-color: rgba(16, 217, 138, 0.25); color: var(--success);
+                {% endif %}
+            ">
+                {% if dispute.status == 'pending' %}
+                    ⏳ 等待官方仲裁
+                {% elif dispute.status == 'resolved' %}
+                    ⚖️ 仲裁已裁決
+                {% else %}
+                    {{ dispute.status }}
+                {% endif %}
+            </span>
+            <a href="{{ url_for('payment.index') }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                ← 返回儀表板
+            </a>
         </div>
+    </header>
 
-        <!-- 裁決結果（若已解決） -->
-        {% if dispute.status == 'resolved' %}
-        <div class="card border-0 mb-4 bg-success-subtle border-start border-4 border-success animate-fade-in shadow-sm">
-            <div class="card-body">
-                <h4 class="alert-heading text-success fw-bold d-flex align-items-center mb-3">
-                    <i class="bi bi-gavel me-2"></i>平台官方裁決結果
-                </h4>
-                <p class="text-dark bg-white p-3 rounded-3 mb-3" style="line-height: 1.6; border: 1px solid rgba(21, 128, 61, 0.15); white-space: pre-line;">
-                    {{ dispute.admin_decision }}
-                </p>
-                <div class="text-muted small">
-                    <i class="bi bi-calendar-check me-1"></i>裁決時間：{{ dispute.resolved_at.strftime('%Y-%m-%d %H:%M') }}
-                </div>
-            </div>
+    <!-- 爭議原因與說明 -->
+    <div class="glass-card" style="margin-bottom: 2rem; padding: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            💬 發起爭議原因說明
+        </h3>
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1rem; color: var(--text-primary); line-height: 1.6; white-space: pre-line; font-size: 0.95rem;">
+            {{ dispute.reason }}
         </div>
-        {% endif %}
-
-        <!-- 雙方照片證據對比區 -->
-        <h4 class="fw-bold text-dark mb-3"><i class="bi bi-images text-indigo me-2"></i>上傳照片證據對比</h4>
-        <div class="row g-4 mb-4">
-            <!-- 入住照片 -->
-            <div class="col-md-6">
-                <div class="card border-0 h-100 shadow-sm">
-                    <div class="card-header bg-primary bg-opacity-10 text-primary border-0 rounded-top-4 py-3">
-                        <i class="bi bi-door-open-fill me-2"></i>入住時點交照片
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="row g-2">
-                            {% for photo in move_in_photos %}
-                            <div class="col-6 mb-2">
-                                <div class="card photo-card overflow-hidden">
-                                    <a href="{{ photo.file_url }}" target="_blank">
-                                        <img src="{{ photo.file_url }}" class="img-fluid" alt="入住照片" style="height: 160px; width: 100%; object-fit: cover;">
-                                    </a>
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="col-12 text-center py-4 text-muted">
-                                <i class="bi bi-image fs-1 mb-2 d-block opacity-50"></i>
-                                尚未上傳入住點交照片。
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 退租照片 -->
-            <div class="col-md-6">
-                <div class="card border-0 h-100 shadow-sm">
-                    <div class="card-header bg-danger bg-opacity-10 text-danger border-0 rounded-top-4 py-3" style="color: #ec4899 !important; background-color: rgba(236, 72, 153, 0.1) !important;">
-                        <i class="bi bi-door-closed-fill me-2"></i>退租時屋況照片
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="row g-2">
-                            {% for photo in move_out_photos %}
-                            <div class="col-6 mb-2">
-                                <div class="card photo-card overflow-hidden">
-                                    <a href="{{ photo.file_url }}" target="_blank">
-                                        <img src="{{ photo.file_url }}" class="img-fluid" alt="退租照片" style="height: 160px; width: 100%; object-fit: cover;">
-                                    </a>
-                                </div>
-                            </div>
-                            {% else %}
-                            <div class="col-12 text-center py-4 text-muted">
-                                <i class="bi bi-image fs-1 mb-2 d-block opacity-50"></i>
-                                尚未上傳退租屋況照片。
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 追加證據照片行內表單 -->
-        {% if dispute.status != 'resolved' %}
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-0 py-3">
-                <h5 class="fw-bold mb-0 text-dark-emphasis"><i class="bi bi-plus-circle-fill text-indigo me-2"></i>追加上傳證據照片</h5>
-            </div>
-            <div class="card-body bg-light bg-opacity-50">
-                <form action="{{ url_for('dispute.add_dispute_evidence', dispute_id=dispute.id) }}" method="POST" enctype="multipart/form-data">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold text-muted mb-1">選擇照片類型</label>
-                            <select name="photo_type" class="form-select rounded-3" required>
-                                <option value="move_in">入住時點交照片</option>
-                                <option value="move_out">退租時屋況照片</option>
-                            </select>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label small fw-bold text-muted mb-1">上傳單張照片檔案</label>
-                            <input type="file" name="photo" class="form-control rounded-3" accept="image/*" required>
-                        </div>
-                        <div class="col-md-3 mt-md-4 pt-1">
-                            <button type="submit" class="btn btn-primary w-100 rounded-3">
-                                <i class="bi bi-cloud-arrow-up-fill me-1"></i>上傳並追加
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% endif %}
+        <p class="subtitle" style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.25rem;">
+            📅 發起時間：{{ dispute.created_at }}
+        </p>
     </div>
+
+    <!-- 裁決結果（若已解決） -->
+    {% if dispute.status == 'resolved' %}
+    <div class="glass-card" style="margin-bottom: 2rem; padding: 2rem; border-color: rgba(16, 217, 138, 0.3); background: linear-gradient(135deg, rgba(16, 217, 138, 0.05), rgba(79, 142, 247, 0.05));">
+        <h3 style="font-size: 1.2rem; font-weight: 800; color: var(--success); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            🛡️ 平台官方裁決結果
+        </h3>
+        <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(16, 217, 138, 0.2); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 1rem; color: var(--text-primary); line-height: 1.6; white-space: pre-line; font-size: 0.95rem;">
+            {{ dispute.admin_decision }}
+        </div>
+        <p class="subtitle" style="font-size: 0.8rem; color: var(--success); display: flex; align-items: center; gap: 0.25rem;">
+            📅 裁決時間：{{ dispute.resolved_at }}
+        </p>
+    </div>
+    {% endif %}
+
+    <!-- 雙方照片證據對比區 -->
+    <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        🖼️ 點交與退租照片存證對比
+    </h3>
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- 入住照片 -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
+                🔑 入住時點交存證照片
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                {% for photo in move_in_photos %}
+                <div style="border-radius: var(--radius-sm); border: 1px solid var(--glass-border); overflow: hidden; height: 160px;">
+                    <a href="{{ photo.file_url }}" target="_blank">
+                        <img src="{{ photo.file_url }}" alt="入住照片" style="height: 100%; width: 100%; object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    </a>
+                </div>
+                {% else %}
+                <div style="grid-column: span 2; text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.9rem;">
+                    📭 尚未上傳入住點交照片。
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 退租照片 -->
+        <div class="glass-card" style="padding: 1.5rem;">
+            <h4 style="font-size: 1rem; font-weight: 700; color: var(--danger); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
+                📦 退租時屋況爭議照片
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                {% for photo in move_out_photos %}
+                <div style="border-radius: var(--radius-sm); border: 1px solid var(--glass-border); overflow: hidden; height: 160px;">
+                    <a href="{{ photo.file_url }}" target="_blank">
+                        <img src="{{ photo.file_url }}" alt="退租照片" style="height: 100%; width: 100%; object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    </a>
+                </div>
+                {% else %}
+                <div style="grid-column: span 2; text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.9rem;">
+                    📭 尚未上傳退租屋況照片。
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 追加證據照片行內表單 -->
+    {% if dispute.status != 'resolved' %}
+    <div class="glass-card" style="padding: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+            ➕ 追加上傳證據照片
+        </h3>
+        <form action="{{ url_for('dispute.add_dispute_evidence', dispute_id=dispute.id) }}" method="POST" enctype="multipart/form-data">
+            <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-end;">
+                <div class="form-group" style="flex: 1; min-width: 200px;">
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">選擇照片分類</label>
+                    <select name="photo_type" class="input-field" required style="width: 100%; font-family: inherit; font-size: 0.9rem; background: var(--bg-dark); color: var(--text-primary); height: 44px; padding: 0.5rem 1rem;">
+                        <option value="move_in">入住時點交照片</option>
+                        <option value="move_out">退租時屋況照片</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="flex: 2; min-width: 280px;">
+                    <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem; display: block;">選擇單張照片檔案</label>
+                    <input type="file" name="photo" class="input-field" accept="image/*" required style="width: 100%; font-size: 0.85rem; height: 44px; padding: 0.5rem 1rem; line-height: 24px;">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-glow" style="height: 44px; padding: 0 2rem; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                    🚀 上傳並追加證據
+                </button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

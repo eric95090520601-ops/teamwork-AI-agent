@@ -81,3 +81,67 @@ CREATE TABLE IF NOT EXISTS check_in_records (
     FOREIGN KEY(property_id) REFERENCES properties(id)
 );
 
+-- ===== 爭議仲裁資料表 =====
+CREATE TABLE IF NOT EXISTS disputes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lease_id INTEGER NOT NULL,
+    initiator_id INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending', -- pending, reviewing, resolved
+    admin_decision TEXT,
+    admin_id INTEGER,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    resolved_at TEXT,
+    FOREIGN KEY(lease_id) REFERENCES leases(id),
+    FOREIGN KEY(initiator_id) REFERENCES users(id)
+);
+
+-- ===== 爭議照片證據資料表 =====
+CREATE TABLE IF NOT EXISTS dispute_evidences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dispute_id INTEGER NOT NULL,
+    uploader_id INTEGER NOT NULL,
+    photo_type TEXT NOT NULL, -- move_in, move_out
+    file_url TEXT NOT NULL,
+    uploaded_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY(dispute_id) REFERENCES disputes(id),
+    FOREIGN KEY(uploader_id) REFERENCES users(id)
+);
+
+-- ===== 報修紀錄資料表 =====
+CREATE TABLE IF NOT EXISTS repairs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lease_id INTEGER NOT NULL,
+    initiator_id INTEGER NOT NULL,
+    item_name TEXT NOT NULL,
+    description TEXT,
+    status TEXT NOT NULL DEFAULT 'pending', -- pending, reviewing, resolved
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY(lease_id) REFERENCES leases(id),
+    FOREIGN KEY(initiator_id) REFERENCES users(id)
+);
+
+-- ===== 報修照片/影片證據資料表 =====
+CREATE TABLE IF NOT EXISTS repair_evidences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repair_id INTEGER NOT NULL,
+    uploader_id INTEGER NOT NULL,
+    evidence_type TEXT NOT NULL, -- original, broken
+    file_url TEXT NOT NULL,
+    uploaded_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY(repair_id) REFERENCES repairs(id),
+    FOREIGN KEY(uploader_id) REFERENCES users(id)
+);
+
+-- ===== 報修溝通留言資料表 =====
+CREATE TABLE IF NOT EXISTS repair_messages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repair_id INTEGER NOT NULL,
+    sender_id INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY(repair_id) REFERENCES repairs(id),
+    FOREIGN KEY(sender_id) REFERENCES users(id)
+);
+
