@@ -1,76 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-10">
-        <!-- 歡迎區 -->
-        <div class="p-5 rounded-4 shadow-lg mb-5 text-white animate-fade-in" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); position: relative; overflow: hidden;">
-            <div style="position: absolute; right: -50px; bottom: -50px; opacity: 0.1; font-size: 15rem; pointer-events: none;">
-                <i class="bi bi-houses"></i>
+<div class="dashboard">
+    <header class="page-header">
+        <h1>租客儀表板</h1>
+        <p class="subtitle">歡迎回來，{{ user.username }}。您的租屋狀態一切正常。</p>
+    </header>
+
+    <div class="card-grid">
+        <!-- 租約資訊 -->
+        <div class="glass-card status-card">
+            <span class="card-icon">🏠</span>
+            <h3>目前租約</h3>
+            <p class="address">{{ lease.address }}</p>
+            <div class="lease-dates">
+                <span>📅 {{ lease.start_date }}</span>
+                <span style="color: var(--text-muted);">—</span>
+                <span>{{ lease.end_date }}</span>
             </div>
-            <div class="position-relative">
-                <span class="badge bg-light text-indigo mb-3 px-3 py-2 fs-6 rounded-pill">
-                    <i class="bi bi-stars me-1 text-warning"></i> AI 智能輔助租屋服務
-                </span>
-                <h1 class="display-5 fw-bold mb-3">歡迎使用租屋仲裁與報修中心</h1>
-                <p class="fs-5 text-white-50 max-width-600 mb-0">
-                    專為房東與房客設計的公正平台。透過透明的照片存證、清晰的時序比對與即時線上溝通，讓租屋爭議化繁為簡，保障雙方最大權益。
-                </p>
+            <div class="lease-status-badge">租約有效中</div>
+        </div>
+
+        <!-- 數位點交 -->
+        <div class="glass-card status-card" style="border-color: rgba(16, 217, 138, 0.2); background: linear-gradient(135deg, rgba(16, 217, 138, 0.05), rgba(79, 142, 247, 0.05));">
+            <span class="card-icon">🔑</span>
+            <h3>數位點交憑證</h3>
+            <p class="address" style="margin-bottom: 0.5rem;">入住數位點交防詐保護</p>
+            <div class="lease-dates">
+                <span>🛡️ 已啟用防篡改時間戳記保護</span>
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <a href="{{ url_for('check_in.handover_page') }}" class="btn btn-primary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📸 開始點交
+                </a>
+                <a href="{{ url_for('check_in.handover_history_page') }}" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.85rem; white-space: nowrap;">
+                    📜 檢視歷史
+                </a>
             </div>
         </div>
 
-        <!-- 模組入口卡片 -->
-        <div class="row g-4">
-            <!-- 爭議仲裁卡片 -->
-            <div class="col-md-6">
-                <div class="card border-0 h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-4 me-3" style="color: #ec4899 !important; background-color: rgba(236, 72, 153, 0.1) !important;">
-                                <i class="bi bi-shield-fill-exclamation fs-2"></i>
-                            </div>
-                            <div>
-                                <h3 class="fw-bold mb-1">爭議仲裁中心</h3>
-                                <p class="text-muted small mb-0">糾紛處理・存證對比・官方裁決</p>
-                            </div>
-                        </div>
-                        <p class="text-secondary mb-4 flex-grow-1" style="line-height: 1.6;">
-                            當入住點交與退租點收屋況不符，或對押金扣抵產生歧見時，可在此發起仲裁。雙方可批次上傳多張屋況照片，由平台官方進行公平審理。
-                        </p>
-                        <div class="d-flex gap-2">
-                            <a href="/disputes/create/1" class="btn btn-primary rounded-3 flex-grow-1">
-                                <i class="bi bi-plus-circle me-1"></i> 發起新爭議 (合約#1)
-                            </a>
-                            <a href="/admin/disputes" class="btn btn-outline-secondary rounded-3">
-                                <i class="bi bi-shield-lock me-1"></i> 審查後台
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <!-- 本期應繳 -->
+        <div class="glass-card payment-card highlight-card">
+            <h3>本期應繳房租</h3>
+            <div class="amount"><span>NT$</span>{{ "{:,}".format(lease.monthly_rent) }}</div>
+            <p class="due-date">📆 繳款期限：本月 5 日前</p>
+            <div class="security-badge">🛡️ 平台擔保交易</div>
+            <a href="{{ url_for('payment.new_payment') }}" class="btn btn-primary btn-glow btn-block">
+                💳 立即線上繳款
+            </a>
+        </div>
+    </div>
 
-            <!-- 報修溝通卡片 -->
-            <div class="col-md-6">
-                <div class="card border-0 h-100 shadow-sm p-3">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-4 me-3">
-                                <i class="bi bi-wrench-adjustable-circle-fill fs-2"></i>
-                            </div>
-                            <div>
-                                <h3 class="fw-bold mb-1">報修與溝通中心</h3>
-                                <p class="text-muted small mb-0">修繕登錄・狀態追蹤・即時對話</p>
-                            </div>
-                        </div>
-                        <p class="text-secondary mb-4 flex-grow-1" style="line-height: 1.6;">
-                            租屋期間若有家具、家電損壞或房屋修繕需求，可在此發起報修單，並上傳損壞與原本狀態的對比照片，於專屬對話板與對方即時溝通留證。
-                        </p>
-                        <a href="/repairs/" class="btn btn-primary rounded-3 w-100">
-                            <i class="bi bi-arrow-right-circle me-1"></i> 進入報修與溝通中心
-                        </a>
-                    </div>
-                </div>
+    <!-- 快速連結 -->
+    <div class="glass-card mt-4" style="padding: 1.25rem 2rem;">
+        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+            <div style="display:flex; align-items:center; gap:0.75rem; color: var(--text-secondary); font-size:0.9rem;">
+                <span style="font-size:1.3rem;">📄</span>
+                <span>查看過往繳費紀錄，確保每一筆交易都有憑有據</span>
             </div>
+            <a href="{{ url_for('payment.payment_history') }}" class="btn btn-secondary" style="white-space:nowrap;">
+                查看紀錄 →
+            </a>
+        </div>
+    </div>
+
+    <!-- 反詐騙提醒 -->
+    <div class="security-banner mt-4">
+        <div class="banner-icon">🔒</div>
+        <div class="banner-text">
+            <h4>反詐騙安全提醒</h4>
+            <p>請一律透過 SafeRent 平台進行繳費。切勿聽信來電要求操作 ATM 或轉帳至不明個人戶頭。本平台不會主動要求您提供完整信用卡資訊於非官方頁面。</p>
         </div>
     </div>
 </div>

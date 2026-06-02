@@ -1,144 +1,60 @@
-# 資料庫設計 (爭議仲裁與報修溝通中心)
+# 資料庫設計 (DB DESIGN)
 
 ## 1. ER 圖（實體關係圖）
+
 ```mermaid
 erDiagram
     USERS {
-        int id PK
-        string username
-        string role "admin, landlord, tenant"
+        INTEGER id PK
+        TEXT username
+        TEXT email
     }
-    
-    CONTRACTS {
-        int id PK
-        int landlord_id FK
-        int tenant_id FK
-        string property_address
+    LEASES {
+        INTEGER id PK
+        INTEGER user_id FK
+        TEXT address
+        INTEGER monthly_rent
+        TEXT start_date
+        TEXT end_date
     }
-    
-    DISPUTES {
-        int id PK
-        int contract_id FK
-        int initiator_id FK
-        string reason
-        string status "pending, reviewing, resolved"
-        string admin_decision
-        int admin_id FK
-        datetime created_at
-        datetime resolved_at
-    }
-    
-    DISPUTE_EVIDENCES {
-        int id PK
-        int dispute_id FK
-        int uploader_id FK
-        string photo_type "move_in, move_out"
-        string file_url
-        datetime uploaded_at
-    }
-    
-    REPAIRS {
-        int id PK
-        int contract_id FK
-        int initiator_id FK
-        string item_name
-        string description
-        string status "pending, reviewing, resolved"
-        datetime created_at
-        datetime updated_at
-    }
-    
-    REPAIR_EVIDENCES {
-        int id PK
-        int repair_id FK
-        int uploader_id FK
-        string evidence_type "original, broken"
-        string file_url
-        datetime uploaded_at
+    PAYMENTS {
+        INTEGER id PK
+        INTEGER user_id FK
+        INTEGER lease_id FK
+        INTEGER amount
+        TEXT payment_date
+        TEXT payment_method
+        TEXT status
     }
 
-    MESSAGES {
-        int id PK
-        int repair_id FK
-        int sender_id FK
-        string content
-        datetime created_at
-    }
-    
-    USERS ||--o{ CONTRACTS : "owns/rents"
-    CONTRACTS ||--o{ DISPUTES : "has"
-    USERS ||--o{ DISPUTES : "initiates/resolves"
-    DISPUTES ||--o{ DISPUTE_EVIDENCES : "contains"
-    USERS ||--o{ DISPUTE_EVIDENCES : "uploads"
-    
-    CONTRACTS ||--o{ REPAIRS : "has"
-    USERS ||--o{ REPAIRS : "initiates"
-    REPAIRS ||--o{ REPAIR_EVIDENCES : "contains"
-    USERS ||--o{ REPAIR_EVIDENCES : "uploads"
-    REPAIRS ||--o{ MESSAGES : "contains"
-    USERS ||--o{ MESSAGES : "sends"
+    USERS ||--o{ LEASES : "has"
+    USERS ||--o{ PAYMENTS : "makes"
+    LEASES ||--o{ PAYMENTS : "receives"
 ```
 
 ## 2. 資料表詳細說明
 
-### USERS
-系統使用者表，包含房東、房客與管理員。
-- `id`: INTEGER, Primary Key
-- `username`: TEXT, 必填, 使用者名稱
-- `role`: TEXT, 必填, 角色 (admin, landlord, tenant)
+### `users` (使用者 / 租客)
+儲存租客的基本資訊。
+- `id` (INTEGER): Primary Key, 自動遞增。
+- `username` (TEXT): 租客姓名，必填。
+- `email` (TEXT): 聯絡信箱，必填且唯一。
 
-### CONTRACTS
-租賃合約表，紀錄房東與房客的租賃關係。
-- `id`: INTEGER, Primary Key
-- `landlord_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `tenant_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `property_address`: TEXT, 必填, 租屋地址
+### `leases` (租約)
+儲存租約資訊與每月應繳金額。
+- `id` (INTEGER): Primary Key, 自動遞增。
+- `user_id` (INTEGER): Foreign Key，關聯至 `users.id`，代表承租人。
+- `address` (TEXT): 租屋處地址，必填。
+- `monthly_rent` (INTEGER): 每月應繳租金，必填。
+- `start_date` (TEXT): 租約起始日 (ISO 格式 YYYY-MM-DD)。
+- `end_date` (TEXT): 租約結束日 (ISO 格式 YYYY-MM-DD)。
 
-### DISPUTES
-爭議案件表，記錄每次的仲裁請求。
-- `id`: INTEGER, Primary Key
-- `contract_id`: INTEGER, 必填, Foreign Key (CONTRACTS.id)
-- `initiator_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `reason`: TEXT, 必填, 爭議原因與說明
-- `status`: TEXT, 必填, 狀態 (pending, reviewing, resolved)
-- `admin_decision`: TEXT, 管理員的裁決結果說明
-- `admin_id`: INTEGER, Foreign Key (USERS.id)
-- `created_at`: DATETIME, 必填, 發起時間
-- `resolved_at`: DATETIME, 裁決時間
-
-### DISPUTE_EVIDENCES
-爭議證據表，記錄雙方上傳的照片。
-- `id`: INTEGER, Primary Key
-- `dispute_id`: INTEGER, 必填, Foreign Key (DISPUTES.id)
-- `uploader_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `photo_type`: TEXT, 必填, 照片類型 (move_in, move_out)
-- `file_url`: TEXT, 必填, 圖片存放路徑
-- `uploaded_at`: DATETIME, 必填, 上傳時間
-
-### REPAIRS
-報修單表，記錄房東與房客間的物品報修請求。
-- `id`: INTEGER, Primary Key
-- `contract_id`: INTEGER, 必填, Foreign Key (CONTRACTS.id)
-- `initiator_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `item_name`: TEXT, 必填, 損壞物品名稱
-- `description`: TEXT, 報修詳細說明
-- `status`: TEXT, 必填, 狀態 (pending, reviewing, resolved)
-- `created_at`: DATETIME, 必填, 發起時間
-- `updated_at`: DATETIME, 最後更新時間
-
-### REPAIR_EVIDENCES
-報修證據表，記錄物品的原本狀態與損壞狀態。
-- `id`: INTEGER, Primary Key
-- `repair_id`: INTEGER, 必填, Foreign Key (REPAIRS.id)
-- `uploader_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `evidence_type`: TEXT, 必填, 證據類型 (original, broken)
-- `file_url`: TEXT, 必填, 檔案存放路徑(照片或影片)
-- `uploaded_at`: DATETIME, 必填, 上傳時間
-
-### MESSAGES
-報修留言板，記錄雙方的溝通內容作為證據。
-- `id`: INTEGER, Primary Key
-- `repair_id`: INTEGER, 必填, Foreign Key (REPAIRS.id)
-- `sender_id`: INTEGER, 必填, Foreign Key (USERS.id)
-- `content`: TEXT, 必填, 留言內容
-- `created_at`: DATETIME, 必填, 留言時間
+### `payments` (繳費紀錄)
+紀錄每一筆線上繳費交易，防詐騙平台的核心紀錄。
+- `id` (INTEGER): Primary Key, 自動遞增。
+- `user_id` (INTEGER): Foreign Key，關聯至 `users.id`。
+- `lease_id` (INTEGER): Foreign Key，關聯至 `leases.id`。
+- `amount` (INTEGER): 實際繳款金額。
+- `payment_date` (TEXT): 繳費完成時間 (ISO 格式 YYYY-MM-DD HH:MM:SS)。
+- `payment_method` (TEXT): 繳費方式，如 "Credit Card"。
+- `status` (TEXT): 交易狀態，如 "Completed", "Failed"。
