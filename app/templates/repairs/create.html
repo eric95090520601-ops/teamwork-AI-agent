@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="payment-flow animate-fade-in" style="max-width: 800px; margin: 0 auto;">
+    <header class="page-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+        <div>
+            <h1>🛠️ 發起修繕報修</h1>
+            <p class="subtitle">登入身份：{{ user.username }} (租客)</p>
+        </div>
+        <a href="{{ url_for('repair.list_repairs') }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+            ← 返回清單
+        </a>
+    </header>
+
+    <div class="glass-card" style="padding: 2.5rem;">
+        <form action="{{ url_for('repair.create_repair') }}" method="POST" enctype="multipart/form-data">
+            <!-- 損壞物品名稱 -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+                <label for="item_name" style="font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; display: block;">
+                    🔧 損壞物品名稱
+                </label>
+                <input type="text" id="item_name" name="item_name" class="input-field" required placeholder="例如：客廳大金冷氣、衛浴面盆漏水、陽台洗衣機故障" style="width: 100%; height: 44px; padding: 0.5rem 1rem;">
+            </div>
+
+            <!-- 詳細描述 -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="description" style="font-size: 1.05rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem; display: block;">
+                    📝 損壞情形詳細描述
+                </label>
+                <textarea id="description" name="description" class="input-field" rows="4" placeholder="請詳細描述物品損壞的具體情況、發現時間以及故障現象（如：冷氣開機後不冷，且會發出隆隆異音，吹出霉味...），以利加速修繕安排。" style="width: 100%; font-family: inherit; font-size: 0.95rem; resize: vertical;"></textarea>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 2rem 0;">
+
+            <!-- 照片上傳區 -->
+            <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                📸 提供物品狀態照片/影片對比
+            </h3>
+            <p class="subtitle" style="margin-bottom: 1.5rem; font-size: 0.85rem;">
+                建議同時上傳物品原本的完好照片（選填，可用入住點交時的照片）與目前損壞狀態照片（必填），以便雙方釐清折舊修繕責任。
+            </p>
+
+            <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+                <!-- 原本狀態照片 -->
+                <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 2px dashed var(--glass-border); padding: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;">
+                    <span style="font-size: 2.2rem; color: var(--success);">🛡️</span>
+                    <label for="original" style="font-weight: 600; color: var(--text-primary); cursor: pointer;">
+                        完好狀態照片/影片
+                    </label>
+                    <p class="subtitle" style="font-size: 0.75rem; margin-bottom: 0.5rem;">（選填，入住點交完好照片）</p>
+                    <input type="file" id="original" name="original" class="input-field" accept="image/*,video/*" multiple style="font-size: 0.85rem; width: 100%; background: transparent; border: none; padding: 0.25rem 0;">
+                </div>
+
+                <!-- 損壞狀態照片 -->
+                <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 2px dashed var(--glass-border); padding: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem;">
+                    <span style="font-size: 2.2rem; color: var(--danger);">⚠️</span>
+                    <label for="broken" style="font-weight: 600; color: var(--text-primary); cursor: pointer;">
+                        損壞狀態照片/影片
+                    </label>
+                    <p class="subtitle" style="font-size: 0.75rem; margin-bottom: 0.5rem;">（必填，當前損壞瑕疵狀態）</p>
+                    <input type="file" id="broken" name="broken" class="input-field" accept="image/*,video/*" multiple required style="font-size: 0.85rem; width: 100%; background: transparent; border: none; padding: 0.25rem 0;">
+                </div>
+            </div>
+
+            <!-- 提交按鈕 -->
+            <button type="submit" class="btn btn-primary btn-block btn-glow" style="padding: 1rem; font-size: 1.05rem; font-weight: 700; width: 100%;">
+                🔧 送出房屋設備修繕申請
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
