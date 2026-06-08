@@ -1,1 +1,5 @@
+flask
+flask-sqlalchemy
+Werkzeug
+Pillow
 flask>=3.0.0
