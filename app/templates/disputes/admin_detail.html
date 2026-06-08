@@ -1,103 +1,68 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="payment-flow animate-fade-in" style="max-width: 1000px; margin: 0 auto;">
-    <!-- 頂部導覽與標題 -->
-    <header class="page-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
-        <div>
-            <h1>⚖️ 審核與裁決爭議案件</h1>
-            <p class="subtitle">案件編號: #{{ dispute.id }} | 租約編號: #{{ dispute.lease_id }}</p>
-        </div>
-        <a href="{{ url_for('dispute.admin_dispute_list') }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-            ← 返回列表
-        </a>
-    </header>
+<h2>審核爭議案件 (ID: {{ dispute.id }})</h2>
 
-    <!-- 爭議原因 -->
-    <div class="glass-card" style="margin-bottom: 2rem; padding: 2rem;">
-        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-            🔴 爭議原因與說明
-        </h3>
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; color: var(--text-primary); line-height: 1.6; white-space: pre-line; font-size: 0.95rem;">
-            {{ dispute.reason }}
-        </div>
+<div class="card mt-3 mb-4">
+    <div class="card-body">
+        <h5 class="card-title">爭議原因</h5>
+        <p class="card-text">{{ dispute.reason }}</p>
     </div>
+</div>
 
-    <!-- 雙方證據對比 -->
-    <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-        🔍 照片證據審查比對
-    </h3>
-    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <!-- 入住照片 -->
-        <div class="glass-card" style="padding: 1.5rem;">
-            <h4 style="font-size: 1rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
-                🔑 入住時點交存證照片
-            </h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+<h4>雙方證據對比</h4>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">入住時照片 (Move in)</div>
+            <div class="card-body row">
                 {% for photo in move_in_photos %}
-                <div style="border-radius: var(--radius-sm); border: 1px solid var(--glass-border); overflow: hidden; height: 150px;">
+                <div class="col-6 mb-2">
                     <a href="{{ photo.file_url }}" target="_blank">
-                        <img src="{{ photo.file_url }}" alt="入住照片" style="height: 100%; width: 100%; object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="{{ photo.file_url }}" class="img-fluid rounded" alt="入住照片" style="height: 150px; width: 100%; object-fit: cover;">
                     </a>
                 </div>
                 {% else %}
-                <div style="grid-column: span 2; text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.9rem;">
-                    📭 無照片。
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- 退租照片 -->
-        <div class="glass-card" style="padding: 1.5rem;">
-            <h4 style="font-size: 1rem; font-weight: 700; color: var(--danger); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
-                📦 退租時屋況爭議照片
-            </h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
-                {% for photo in move_out_photos %}
-                <div style="border-radius: var(--radius-sm); border: 1px solid var(--glass-border); overflow: hidden; height: 150px;">
-                    <a href="{{ photo.file_url }}" target="_blank">
-                        <img src="{{ photo.file_url }}" alt="退租照片" style="height: 100%; width: 100%; object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    </a>
-                </div>
-                {% else %}
-                <div style="grid-column: span 2; text-align: center; padding: 2rem 0; color: var(--text-muted); font-size: 0.9rem;">
-                    📭 無照片。
-                </div>
+                <p>無照片。</p>
                 {% endfor %}
             </div>
         </div>
     </div>
+    
+    <div class="col-md-6">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">退租時照片 (Move out)</div>
+            <div class="card-body row">
+                {% for photo in move_out_photos %}
+                <div class="col-6 mb-2">
+                    <a href="{{ photo.file_url }}" target="_blank">
+                        <img src="{{ photo.file_url }}" class="img-fluid rounded" alt="退租照片" style="height: 150px; width: 100%; object-fit: cover;">
+                    </a>
+                </div>
+                {% else %}
+                <p>無照片。</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
 
-    <!-- 裁決結果填寫 -->
-    <div class="glass-card" style="padding: 2rem;">
-        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
-            ⚖️ 官方裁決判定
-        </h3>
-
+<div class="card">
+    <div class="card-header">裁決結果填寫</div>
+    <div class="card-body">
         {% if dispute.status == 'resolved' %}
-        <div style="background: rgba(16, 217, 138, 0.05); border: 1px solid rgba(16, 217, 138, 0.2); border-radius: var(--radius-md); padding: 1.5rem; color: var(--text-primary);">
-            <p style="font-weight: 700; color: var(--success); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                ✔️ 此案件已於 {{ dispute.resolved_at }} 完成仲裁裁決：
-            </p>
-            <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: var(--radius-sm); padding: 1.25rem; font-size: 0.95rem; white-space: pre-line; line-height: 1.6;">
+            <div class="alert alert-success">
+                已於 {{ dispute.resolved_at.strftime('%Y-%m-%d %H:%M') }} 裁決。<br>
+                <strong>裁決內容：</strong><br>
                 {{ dispute.admin_decision }}
             </div>
-        </div>
         {% else %}
-        <form action="{{ url_for('dispute.admin_dispute_decide', dispute_id=dispute.id) }}" method="POST">
-            <div class="form-group" style="margin-bottom: 1.5rem;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; display: block; line-height: 1.5;">
-                    請根據雙方上傳的照片證據進行比對，填寫仲裁裁決說明（例如：確認客廳牆面大片汙損非自然折舊，裁定扣除押金 1,000 元，餘額應予退還）
-                </label>
-                <textarea name="admin_decision" class="input-field" rows="4" placeholder="請詳細填寫官方裁決判定與具體理由..." required style="width: 100%; font-family: inherit; font-size: 0.95rem; resize: vertical;"></textarea>
-            </div>
-            <div style="text-align: right;">
-                <button type="submit" class="btn btn-danger btn-glow" style="padding: 0.75rem 2rem; font-size: 0.95rem; font-weight: 700;">
-                    ⚖️ 送出最終裁決 (送出後即不可修改)
-                </button>
-            </div>
-        </form>
+            <form action="{{ url_for('dispute.admin_dispute_decide', dispute_id=dispute.id) }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">請根據照片對比，給出初步裁決說明（如：牆面汙損屬實，建議扣除押金 500 元）</label>
+                    <textarea name="admin_decision" class="form-control" rows="4" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-danger">送出裁決 (不可修改)</button>
+            </form>
         {% endif %}
     </div>
 </div>
