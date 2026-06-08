@@ -96,3 +96,40 @@ CREATE TABLE IF NOT EXISTS properties (
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY(landlord_id) REFERENCES landlords(id)
 );
+
+-- ===== 法律問答資料表 =====
+CREATE TABLE IF NOT EXISTS legal_faqs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category TEXT NOT NULL,
+    question TEXT NOT NULL,
+    answer TEXT NOT NULL,
+    reference_law TEXT NOT NULL
+);
+
+-- ===== 爭議單資料表 =====
+CREATE TABLE IF NOT EXISTS disputes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    lease_id INTEGER NOT NULL,
+    initiator_id INTEGER NOT NULL,
+    reason TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    admin_decision TEXT,
+    admin_id INTEGER,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    resolved_at TEXT,
+    FOREIGN KEY(lease_id) REFERENCES leases(id),
+    FOREIGN KEY(initiator_id) REFERENCES users(id),
+    FOREIGN KEY(admin_id) REFERENCES users(id)
+);
+
+-- ===== 爭議證據資料表 =====
+CREATE TABLE IF NOT EXISTS dispute_evidences (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    dispute_id INTEGER NOT NULL,
+    uploader_id INTEGER NOT NULL,
+    photo_type TEXT NOT NULL,
+    file_url TEXT NOT NULL,
+    uploaded_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(dispute_id) REFERENCES disputes(id),
+    FOREIGN KEY(uploader_id) REFERENCES users(id)
+);
