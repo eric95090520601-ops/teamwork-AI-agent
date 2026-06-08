@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>上傳證據照片 (爭議 ID: {{ dispute.id }})</h2>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">選擇照片類型</label>
+                        <select name="photo_type" class="form-select" required>
+                            <option value="move_in">入住時點交照片</option>
+                            <option value="move_out">退租時屋況照片</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">上傳照片</label>
+                        <input type="file" name="photo" class="form-control" accept="image/png, image/jpeg" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">上傳檔案</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="alert alert-warning">
+            請上傳能清晰呈現屋況的照片。照片上傳後不可修改，若需補充請重複此流程。
+        </div>
+        <a href="{{ url_for('dispute.view_dispute', dispute_id=dispute.id) }}" class="btn btn-outline-secondary mt-3">完成上傳，查看爭議進度</a>
+    </div>
+</div>
+{% endblock %}

@@ -20,6 +20,7 @@
                 <li><a href="{{ url_for('property.property_list') }}">🔍 找房源</a></li>
                 <li><a href="{{ url_for('payment.payment_history') }}">繳費紀錄</a></li>
                 <li><a href="{{ url_for('legal.legal_faq') }}">⚖️ 法律查詢</a></li>
+                <li><a href="{{ url_for('dispute.create_dispute') }}">🚨 爭議仲裁</a></li>
                 <li class="user-profile">
                     <span class="avatar"></span>
                     {{ user.username if user else '訪客' }}
