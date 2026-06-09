@@ -1,38 +1,4 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>租屋網站 - 爭議仲裁</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="/">租屋網站</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/admin/disputes">管理員後台</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container">
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-info">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
@@ -54,7 +20,8 @@
                 <li><a href="{{ url_for('property.property_list') }}">🔍 找房源</a></li>
                 <li><a href="{{ url_for('payment.payment_history') }}">繳費紀錄</a></li>
                 <li><a href="{{ url_for('legal.legal_faq') }}">⚖️ 法律查詢</a></li>
-                <li><a href="{{ url_for('dispute.create_dispute') }}">🚨 爭議仲裁</a></li>
+                <li><a href="{{ url_for('repair.list_repairs') }}">🛠️ 報修中心</a></li>
+                <li><a href="{{ url_for('dispute.admin_dispute_list') }}">⚖️ 仲裁中心</a></li>
                 <li class="user-profile">
                     <span class="avatar"></span>
                     {{ user.username if user else '訪客' }}
