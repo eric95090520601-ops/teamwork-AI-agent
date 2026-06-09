@@ -6,7 +6,7 @@ from app.models.user import UserModel
 from app.models.lease import LeaseModel
 from datetime import datetime
 
-bp = Blueprint('repair', __name__, url_prefix='/repairs')
+repair_bp = Blueprint('repair', __name__)
 
 CURRENT_USER_ID = 1
 
@@ -15,13 +15,13 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'mp4', 'mov'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@bp.route('/')
+@repair_bp.route('/repairs/')
 def list_repairs():
     user = UserModel.get_user(CURRENT_USER_ID)
     repairs = RepairModel.get_all_by_user(CURRENT_USER_ID)
     return render_template('repairs/list.html', repairs=repairs, user=user)
 
-@bp.route('/create', methods=['GET', 'POST'])
+@repair_bp.route('/repairs/create', methods=['GET', 'POST'])
 def create_repair():
     user = UserModel.get_user(CURRENT_USER_ID)
     
@@ -67,7 +67,7 @@ def create_repair():
         
     return render_template('repairs/create.html', user=user)
 
-@bp.route('/<int:repair_id>', methods=['GET', 'POST'])
+@repair_bp.route('/repairs/<int:repair_id>', methods=['GET', 'POST'])
 def detail(repair_id):
     user = UserModel.get_user(CURRENT_USER_ID)
     repair = RepairModel.get_by_id(repair_id)

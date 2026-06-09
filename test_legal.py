@@ -1,4 +1,4 @@
-from app import app
+from run import app
 from app.models.db import init_db
 
 init_db(app)
