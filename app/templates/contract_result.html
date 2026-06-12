@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contract-result-page">
+
+  <!-- 返回按鈕 -->
+  <div class="back-row">
+    <a href="{{ url_for('contract.contract_check') }}" class="btn btn-secondary btn-sm">
+      ← 返回自檢頁面
+    </a>
+    {% if mode != 'history' %}
+    <a href="{{ url_for('contract.contract_history') }}" class="btn btn-outline btn-sm">
+      📁 查看歷史紀錄
+    </a>
+    {% endif %}
+  </div>
+
+  <!-- 結果標題 -->
+  <header class="page-header">
+    <h1>
+      {% if counts.total == 0 %}✅ 未發現明顯違法條款
+      {% elif counts.high > 0 %}🔴 發現 {{ counts.total }} 項問題
+      {% else %}🟡 發現 {{ counts.total }} 項需注意事項
+      {% endif %}
+    </h1>
+    <p class="subtitle">
+      分析對象：{{ filename }}
+      {% if checked_at %} · 分析時間：{{ checked_at }}{% endif %}
+      {% if saved and check_id %} · <span style="color:var(--success)">✓ 已儲存至歷史紀錄</span>{% endif %}
+    </p>
+  </header>
+
+  <!-- 風險統計卡片 -->
+  <div class="risk-summary-row">
+    <div class="risk-summary-card {% if counts.high > 0 %}active-high{% endif %}">
+      <div class="risk-number">{{ counts.high }}</div>
+      <div class="risk-label">🔴 高風險</div>
+    </div>
+    <div class="risk-summary-card {% if counts.medium > 0 %}active-medium{% endif %}">
+      <div class="risk-number">{{ counts.medium }}</div>
+      <div class="risk-label">🟡 中風險</div>
+    </div>
+    <div class="risk-summary-card {% if counts.low > 0 %}active-low{% endif %}">
+      <div class="risk-number">{{ counts.low }}</div>
+      <div class="risk-label">🔵 注意</div>
+    </div>
+    <div class="risk-summary-card overall">
+      <div class="risk-number">{{ counts.total }}</div>
+      <div class="risk-label">📊 總計</div>
+    </div>
+  </div>
+
+  <!-- 無問題狀態 -->
+  {% if counts.total == 0 %}
+  <div class="no-issues glass-card">
+    <div class="no-issues-icon">🎉</div>
+    <h3>恭喜！未發現明顯違法條款</h3>
+    <p>根據你的自檢結果，合約中未發現常見的違法條款。建議仍請專業律師審閱完整合約，以確保你的權益。</p>
+    <div class="advice-tip">
+      💡 即使合約沒有明顯違法條款，仍建議要求房東提供<strong>合約審閱期至少3天</strong>再簽署。
+    </div>
+    <a href="{{ url_for('contract.contract_check') }}" class="btn btn-primary btn-glow" style="margin-top:1.5rem;">
+      🔍 再次分析
+    </a>
+  </div>
+
+  {% else %}
+
+  <!-- 整體建議橫幅 -->
+  {% if counts.high > 0 %}
+  <div class="result-banner banner-danger glass-card">
+    <span class="banner-icon-big">⚠️</span>
+    <div>
+      <strong>建議：請勿在未修改前簽署此合約</strong>
+      <p>發現 {{ counts.high }} 項高風險違法條款。建議與房東協商修改，或諮詢租屋糾紛律師後再決定是否簽約。</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="result-banner banner-warning glass-card">
+    <span class="banner-icon-big">💬</span>
+    <div>
+      <strong>建議：簽約前與房東溝通確認</strong>
+      <p>發現 {{ counts.medium + counts.low }} 項需注意事項，建議在簽約前與房東確認並修改相關條款。</p>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 問題分類顯示 -->
+  {% set categories_order = ['high', 'medium', 'low'] %}
+  {% for risk_level in categories_order %}
+    {% set level_issues = issues | selectattr('risk', 'equalto', risk_level) | list %}
+    {% if level_issues %}
+    <div class="result-section">
+      <div class="result-section-header risk-header-{{ risk_level }}">
+        {% if risk_level == 'high' %}🔴 高風險條款（{{ level_issues|length }} 項）
+        {% elif risk_level == 'medium' %}🟡 中風險條款（{{ level_issues|length }} 項）
+        {% else %}🔵 注意事項（{{ level_issues|length }} 項）{% endif %}
+      </div>
+
+      {% for issue in level_issues %}
+      <div class="issue-card glass-card issue-{{ issue.risk }}">
+        <div class="issue-header">
+          <div class="issue-title-row">
+            <span class="issue-category-tag">{{ issue.category }}</span>
+            <h3 class="issue-title">{{ issue.title }}</h3>
+          </div>
+          <span class="risk-badge risk-{{ issue.risk }}">
+            {% if issue.risk == 'high' %}🔴 高風險
+            {% elif issue.risk == 'medium' %}🟡 中風險
+            {% else %}🔵 注意{% endif %}
+          </span>
+        </div>
+
+        <p class="issue-description">{{ issue.description }}</p>
+
+        {% if issue.matched_keyword %}
+        <div class="matched-keyword">
+          🔎 比對到關鍵字：<code>{{ issue.matched_keyword }}</code>
+        </div>
+        {% endif %}
+
+        <div class="law-block">
+          <div class="law-title">⚖️ 法律依據</div>
+          <div class="law-name">{{ issue.law }}</div>
+          <div class="law-detail">{{ issue.law_detail }}</div>
+        </div>
+
+        <div class="suggestion-block">
+          <div class="suggestion-title">💡 建議處理方式</div>
+          <div class="suggestion-text">{{ issue.suggestion }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endfor %}
+
+  <!-- 儲存/再分析按鈕列 -->
+  <div class="result-actions glass-card">
+    <div class="action-info">
+      {% if saved %}
+      <span style="color:var(--success)">✅ 本次結果已儲存，可至歷史紀錄查閱</span>
+      {% else %}
+      <span style="color:var(--text-muted)">本次結果未儲存</span>
+      {% endif %}
+    </div>
+    <div class="action-buttons">
+      <a href="{{ url_for('contract.contract_history') }}" class="btn btn-secondary">
+        📁 歷史紀錄
+      </a>
+      <a href="{{ url_for('contract.contract_check') }}" class="btn btn-primary btn-glow">
+        🔍 再次分析
+      </a>
+    </div>
+  </div>
+
+  <!-- 免責聲明 -->
+  <div class="disclaimer glass-card">
+    <span class="disclaimer-icon">ℹ️</span>
+    <div class="disclaimer-text">
+      <strong>免責聲明</strong>：本系統提供參考性法律資訊，不構成正式法律建議。
+      如有租屋糾紛或複雜法律問題，建議諮詢<a href="https://www.judicial.gov.tw/tw/mp-1.html" target="_blank">司法院法律扶助</a>或專業律師。
+      租屋糾紛亦可撥打消費者保護熱線 <strong>1950</strong>。
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

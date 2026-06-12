@@ -26,6 +26,21 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY(lease_id) REFERENCES leases(id)
 );
 
+-- ===== 合約違法條款自檢紀錄 =====
+CREATE TABLE IF NOT EXISTS contract_checks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    filename TEXT NOT NULL,
+    contract_text TEXT NOT NULL,
+    total_issues INTEGER NOT NULL DEFAULT 0,
+    high_risk INTEGER NOT NULL DEFAULT 0,
+    medium_risk INTEGER NOT NULL DEFAULT 0,
+    low_risk INTEGER NOT NULL DEFAULT 0,
+    result_json TEXT NOT NULL,
+    checked_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 -- ===== 房東資料表 =====
 CREATE TABLE IF NOT EXISTS landlords (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

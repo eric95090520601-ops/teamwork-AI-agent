@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contract-page">
+
+  <header class="page-header">
+    <h1>📜 合約違法條款自檢</h1>
+    <p class="subtitle">依據中華民國民法、刑法、消費者保護法等，自動檢查租屋合約是否含有違法條款</p>
+  </header>
+
+  <!-- 法律依據標籤列 -->
+  <div class="law-badges">
+    <span class="law-badge">⚖️ 民法</span>
+    <span class="law-badge">🔒 刑法第306條</span>
+    <span class="law-badge">🛡️ 消費者保護法</span>
+    <span class="law-badge">🏠 租賃住宅市場發展及管理條例</span>
+    <span class="law-badge">📋 戶籍法</span>
+    <span class="law-badge">🏛️ 住宅法</span>
+    <span class="law-badge">💰 所得稅法</span>
+  </div>
+
+  <!-- Flash 訊息 -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- 模式切換 Tab -->
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-checklist" onclick="switchMode('checklist')">
+      ✅ 快速自檢
+      <span class="tab-desc">勾選條款，30秒完成</span>
+    </button>
+    <button class="mode-tab" id="tab-text" onclick="switchMode('text')">
+      📄 合約文字分析
+      <span class="tab-desc">貼上合約內容，自動掃描</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       模式一：快速自檢（勾選）
+  ══════════════════════════════════════ -->
+  <div id="panel-checklist" class="mode-panel">
+    <form method="POST" action="{{ url_for('contract.analyze') }}">
+      <input type="hidden" name="mode" value="checklist">
+
+      <div class="checklist-intro glass-card">
+        <span class="intro-icon">💡</span>
+        <div>
+          <strong>使用方式</strong>：閱讀你的租屋合約，將合約中<strong>有出現</strong>的條款打勾，系統將告知哪些條款違反法律。
+        </div>
+      </div>
+
+      {% for category, clauses in categories.items() %}
+      <div class="clause-category glass-card">
+        <div class="category-header">
+          <span class="category-icon">
+            {% if '押金' in category %}💰
+            {% elif '修繕' in category %}🔧
+            {% elif '居住' in category %}🏠
+            {% elif '終止' in category %}📝
+            {% elif '違約' in category %}⚠️
+            {% elif '隱私' in category %}🔐
+            {% elif '費用' in category %}💳
+            {% elif '定型' in category %}📋
+            {% else %}📌{% endif %}
+          </span>
+          <h3>{{ category }}</h3>
+          <span class="clause-count">{{ clauses|length }} 項</span>
+        </div>
+
+        <div class="clause-list">
+          {% for clause in clauses %}
+          <label class="clause-item risk-{{ clause.risk }}">
+            <div class="clause-checkbox-wrap">
+              <input type="checkbox" name="clauses" value="{{ clause.id }}" class="clause-checkbox">
+              <span class="clause-checkmark"></span>
+            </div>
+            <div class="clause-content">
+              <div class="clause-title-row">
+                <span class="clause-title">{{ clause.title }}</span>
+                <span class="risk-badge risk-{{ clause.risk }}">
+                  {% if clause.risk == 'high' %}🔴 高風險
+                  {% elif clause.risk == 'medium' %}🟡 中風險
+                  {% else %}🔵 注意{% endif %}
+                </span>
+              </div>
+              <p class="clause-desc">{{ clause.description }}</p>
+            </div>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="form-actions glass-card">
+        <label class="save-toggle">
+          <input type="checkbox" name="save_result" value="yes" checked>
+          <span class="save-checkmark"></span>
+          儲存分析結果，以便日後查閱
+        </label>
+        <button type="submit" class="btn btn-primary btn-glow btn-lg" id="checklistSubmitBtn">
+          🔍 開始自動分析
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       模式二：文字分析（貼上合約）
+  ══════════════════════════════════════ -->
+  <div id="panel-text" class="mode-panel hidden">
+    <form method="POST" action="{{ url_for('contract.analyze') }}">
+      <input type="hidden" name="mode" value="text">
+
+      <div class="glass-card">
+        <div class="text-mode-header">
+          <h3>📄 貼上合約內容</h3>
+          <p>將租屋合約的文字內容複製貼上至下方，系統將掃描並標記可能違法的條款。</p>
+        </div>
+
+        <div class="form-group">
+          <div class="textarea-toolbar">
+            <span id="charCount" class="char-count">0 字</span>
+            <button type="button" class="btn btn-outline btn-sm" onclick="clearText()">清除</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="pasteText()">📋 貼上</button>
+          </div>
+          <textarea
+            id="contractText"
+            name="contract_text"
+            class="contract-textarea"
+            placeholder="請將租屋合約文字貼上於此...
+
+範例：
+甲方（房東）得隨時終止本契約，乙方（租客）須於三日內搬離。
+押金新台幣六個月租金，退租時概不退還。
+房屋一切修繕費用由乙方自行負擔。
+乙方不得在本房屋設立戶籍。"
+            rows="14"
+            oninput="updateCharCount()"
+          ></textarea>
+        </div>
+
+        <div class="text-tips">
+          <div class="tip-item">💡 可只貼入<strong>特定條款段落</strong>，不需貼入整份合約</div>
+          <div class="tip-item">🔍 系統將自動比對<strong>{{ categories|length }} 類、共 {{ categories.values()|sum(attribute='__len__') }} 種</strong>常見違法條款</div>
+        </div>
+
+        <div class="form-actions" style="margin-top:1.5rem;">
+          <label class="save-toggle">
+            <input type="checkbox" name="save_result" value="yes" checked>
+            <span class="save-checkmark"></span>
+            儲存分析結果，以便日後查閱
+          </label>
+          <button type="submit" class="btn btn-primary btn-glow btn-lg" id="textSubmitBtn">
+            🤖 自動掃描合約
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- 歷史紀錄快速入口 -->
+  <div class="history-shortcut glass-card">
+    <span class="history-icon">📁</span>
+    <div>
+      <strong>查看過去的分析紀錄</strong>
+      <p>你可以隨時查閱已儲存的合約分析報告。</p>
+    </div>
+    <a href="{{ url_for('contract.contract_history') }}" class="btn btn-secondary">
+      查看歷史紀錄 →
+    </a>
+  </div>
+
+</div>
+
+<script>
+// 模式切換
+function switchMode(mode) {
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.add('hidden'));
+  document.getElementById('tab-' + mode).classList.add('active');
+  document.getElementById('panel-' + mode).classList.remove('hidden');
+}
+
+// 字數計算
+function updateCharCount() {
+  const len = document.getElementById('contractText').value.length;
+  const el = document.getElementById('charCount');
+  el.textContent = len + ' 字';
+  el.style.color = len >= 20 ? 'var(--success)' : 'var(--warning)';
+}
+
+// 清除文字
+function clearText() {
+  document.getElementById('contractText').value = '';
+  updateCharCount();
+}
+
+// 貼上文字
+async function pasteText() {
+  try {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('contractText').value = text;
+    updateCharCount();
+  } catch (e) {
+    alert('請手動使用 Ctrl+V 貼上');
+  }
+}
+
+// 勾選條款高亮
+document.querySelectorAll('.clause-checkbox').forEach(cb => {
+  cb.addEventListener('change', function() {
+    this.closest('.clause-item').classList.toggle('checked', this.checked);
+    updateSelectedCount();
+  });
+});
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.clause-checkbox:checked').length;
+  const btn = document.getElementById('checklistSubmitBtn');
+  if (count > 0) {
+    btn.textContent = '🔍 分析已勾選的 ' + count + ' 項條款';
+    btn.style.opacity = '1';
+  } else {
+    btn.textContent = '🔍 開始自動分析';
+  }
+}
+
+// 提交時 loading
+document.querySelectorAll('form').forEach(form => {
+  form.addEventListener('submit', function() {
+    this.querySelectorAll('.btn-primary').forEach(btn => {
+      btn.classList.add('loading');
+      btn.disabled = true;
+    });
+  });
+});
+</script>
+{% endblock %}

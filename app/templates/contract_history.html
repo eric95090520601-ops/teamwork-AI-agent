@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="contract-history-page">
+
+  <header class="page-header">
+    <h1>📁 合約分析歷史紀錄</h1>
+    <p class="subtitle">你過去所有的合約自檢記錄，安全儲存、隨時查閱</p>
+  </header>
+
+  <div class="history-toolbar">
+    <a href="{{ url_for('contract.contract_check') }}" class="btn btn-primary btn-glow">
+      + 新增分析
+    </a>
+  </div>
+
+  <div class="glass-card">
+    {% if history %}
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th>分析時間</th>
+          <th>分析對象</th>
+          <th>高風險</th>
+          <th>中風險</th>
+          <th>注意</th>
+          <th>總計問題</th>
+          <th>查看</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in history %}
+        <tr>
+          <td class="date-col">{{ record.checked_at }}</td>
+          <td>{{ record.filename }}</td>
+          <td>
+            {% if record.high_risk > 0 %}
+            <span class="badge badge-danger">🔴 {{ record.high_risk }}</span>
+            {% else %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if record.medium_risk > 0 %}
+            <span class="badge badge-warning">🟡 {{ record.medium_risk }}</span>
+            {% else %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if record.low_risk > 0 %}
+            <span class="badge badge-info">🔵 {{ record.low_risk }}</span>
+            {% else %}
+            <span style="color:var(--text-muted)">—</span>
+            {% endif %}
+          </td>
+          <td class="amount-col">
+            {% if record.total_issues == 0 %}
+            <span style="color:var(--success)">✅ 無問題</span>
+            {% else %}
+            {{ record.total_issues }} 項
+            {% endif %}
+          </td>
+          <td>
+            <a href="{{ url_for('contract.contract_history_detail', check_id=record.id) }}"
+               class="btn btn-outline btn-sm">查看報告</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📭</div>
+      <p>尚無分析紀錄</p>
+      <a href="{{ url_for('contract.contract_check') }}" class="btn btn-primary btn-glow" style="margin-top:1rem;">
+        立即開始自檢
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
