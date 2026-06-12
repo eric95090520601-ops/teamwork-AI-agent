@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="payment-flow animate-fade-in" style="max-width: 1000px; margin: 0 auto;">
+    <header class="page-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem;">
+        <div>
+            <h1>🛠️ 報修與溝通中心</h1>
+            <p class="subtitle">當前身份：{{ user.username }} (租客)</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a href="{{ url_for('repair.create_repair') }}" class="btn btn-primary btn-glow" style="padding: 0.5rem 1.25rem; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 0.25rem;">
+                ➕ 發起新報修
+            </a>
+            <a href="{{ url_for('payment.index') }}" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                ← 返回儀表板
+            </a>
+        </div>
+    </header>
+
+    <div class="glass-card" style="padding: 2rem;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.75rem;">
+            🔧 租賃房屋修繕紀錄清單
+        </h3>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem; color: var(--text-primary);">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--glass-border); color: var(--text-secondary); font-weight: 600;">
+                        <th style="padding: 1rem 0.75rem;">報修單號</th>
+                        <th style="padding: 1rem 0.75rem;">損壞物品</th>
+                        <th style="padding: 1rem 0.75rem;">關聯房屋</th>
+                        <th style="padding: 1rem 0.75rem;">發起時間</th>
+                        <th style="padding: 1rem 0.75rem;">修繕狀態</th>
+                        <th style="padding: 1rem 0.75rem; text-align: right;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repair in repairs %}
+                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.2s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.02)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1rem 0.75rem; font-weight: 700; color: var(--accent-primary);">#{{ repair.id }}</td>
+                        <td style="padding: 1rem 0.75rem; font-weight: 600;">{{ repair.item_name }}</td>
+                        <td style="padding: 1rem 0.75rem; font-size: 0.85rem; color: var(--text-secondary);">{{ repair.lease_address }}</td>
+                        <td style="padding: 1rem 0.75rem; color: var(--text-secondary); font-size: 0.85rem;">{{ repair.created_at }}</td>
+                        <td style="padding: 1rem 0.75rem;">
+                            <span class="lease-status-badge" style="
+                                display: inline-flex; margin: 0; padding: 0.2rem 0.6rem; font-size: 0.75rem;
+                                {% if repair.status == 'pending' %}
+                                    background: var(--warning-bg); border-color: rgba(251, 191, 36, 0.25); color: var(--warning);
+                                {% elif repair.status == 'reviewing' %}
+                                    background: rgba(79, 142, 247, 0.12); border-color: rgba(79, 142, 247, 0.25); color: var(--accent-primary);
+                                {% else %}
+                                    background: var(--success-bg); border-color: rgba(16, 217, 138, 0.25); color: var(--success);
+                                {% endif %}
+                            ">
+                                {% if repair.status == 'pending' %}
+                                    ⏳ 待處理
+                                {% elif repair.status == 'reviewing' %}
+                                    🔍 查檢中
+                                {% else %}
+                                    ✔️ 已修復
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td style="padding: 1rem 0.75rem; text-align: right;">
+                            <a href="{{ url_for('repair.detail', repair_id=repair.id) }}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; font-weight: 600;">
+                                💬 溝通與詳情
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 3rem 0; color: var(--text-muted); font-size: 0.95rem;">
+                            🎉 太棒了！目前沒有任何待修繕的報修單。
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
