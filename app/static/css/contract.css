@@ -1,0 +1,487 @@
+/* ==============================================
+   contract.css — 合約違法條款自檢專屬樣式
+   Branch: contract-illegal-check
+   ============================================== */
+
+/* ── 法律依據標籤列 ── */
+.law-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+.law-badge {
+  padding: 0.35rem 0.9rem;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid rgba(124, 58, 237, 0.25);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #c4b5fd;
+  white-space: nowrap;
+}
+
+/* ── 模式切換 Tab ── */
+.mode-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.mode-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.1rem 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+.mode-tab .tab-desc {
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+.mode-tab:hover {
+  border-color: var(--accent-primary);
+  color: var(--text-primary);
+}
+.mode-tab.active {
+  background: rgba(79, 142, 247, 0.1);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+.mode-tab.active .tab-desc { color: rgba(79,142,247,0.7); }
+
+/* ── 模式面板 ── */
+.mode-panel { }
+.mode-panel.hidden { display: none; }
+
+/* ── 自檢說明 ── */
+.checklist-intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.5rem;
+  margin-bottom: 1.25rem;
+  background: rgba(79,142,247,0.06);
+  border-color: rgba(79,142,247,0.2);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+.intro-icon { font-size: 1.4rem; flex-shrink: 0; }
+
+/* ── 條款分類卡 ── */
+.clause-category {
+  margin-bottom: 1.25rem;
+  padding: 0;
+  overflow: hidden;
+}
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid var(--glass-border);
+}
+.category-icon { font-size: 1.3rem; }
+.category-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+.clause-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+}
+
+/* ── 條款項目 ── */
+.clause-list { padding: 0.5rem 0; }
+.clause-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: background 0.2s;
+  user-select: none;
+}
+.clause-item:last-child { border-bottom: none; }
+.clause-item:hover { background: rgba(255,255,255,0.03); }
+.clause-item.checked { background: rgba(79,142,247,0.06); }
+
+.clause-checkbox-wrap { flex-shrink: 0; padding-top: 0.15rem; }
+.clause-checkbox { display: none; }
+.clause-checkmark {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--glass-border-hover);
+  border-radius: 5px;
+  position: relative;
+  transition: var(--transition);
+  background: transparent;
+}
+.clause-checkbox:checked ~ .clause-checkmark {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+.clause-checkbox:checked ~ .clause-checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.clause-content { flex: 1; }
+.clause-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+}
+.clause-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.clause-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── 風險徽章 ── */
+.risk-badge {
+  padding: 0.2rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.risk-badge.risk-high {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+}
+.risk-badge.risk-medium {
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: var(--warning);
+}
+.risk-badge.risk-low {
+  background: rgba(79, 142, 247, 0.1);
+  border: 1px solid rgba(79, 142, 247, 0.25);
+  color: var(--accent-primary);
+}
+
+/* ── 表單操作列 ── */
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  flex-wrap: wrap;
+}
+.btn-lg { padding: 0.9rem 2rem; font-size: 1rem; }
+
+.save-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+.save-toggle input[type="checkbox"] { display: none; }
+.save-checkmark {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--glass-border-hover);
+  border-radius: 4px;
+  flex-shrink: 0;
+  position: relative;
+  transition: var(--transition);
+}
+.save-toggle input:checked ~ .save-checkmark {
+  background: var(--success);
+  border-color: var(--success);
+}
+.save-toggle input:checked ~ .save-checkmark::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ── 文字輸入區 ── */
+.text-mode-header {
+  margin-bottom: 1.25rem;
+}
+.text-mode-header h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+.text-mode-header p { color: var(--text-secondary); font-size: 0.875rem; }
+
+.textarea-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.char-count {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-right: auto;
+  font-feature-settings: "tnum";
+}
+.btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+.contract-textarea {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  line-height: 1.7;
+  resize: vertical;
+  transition: border-color 0.3s;
+}
+.contract-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(79,142,247,0.15);
+}
+.contract-textarea::placeholder { color: var(--text-muted); font-size: 0.85rem; }
+
+.text-tips {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+.tip-item { font-size: 0.82rem; color: var(--text-muted); }
+
+/* ── 歷史紀錄快速入口 ── */
+.history-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.history-icon { font-size: 2rem; flex-shrink: 0; }
+.history-shortcut div { flex: 1; }
+.history-shortcut strong { display: block; margin-bottom: 0.2rem; }
+.history-shortcut p { color: var(--text-muted); font-size: 0.85rem; margin: 0; }
+
+/* ── 結果頁 ── */
+.back-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.risk-summary-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.risk-summary-card {
+  padding: 1.25rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.risk-summary-card.active-high { border-color: rgba(244,63,94,0.4); background: rgba(244,63,94,0.06); }
+.risk-summary-card.active-medium { border-color: rgba(251,191,36,0.4); background: rgba(251,191,36,0.06); }
+.risk-summary-card.active-low { border-color: rgba(79,142,247,0.4); background: rgba(79,142,247,0.06); }
+.risk-number { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; color: var(--text-primary); }
+.risk-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+.result-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.banner-danger { border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.06); }
+.banner-warning { border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.06); }
+.banner-icon-big { font-size: 2rem; flex-shrink: 0; }
+.result-banner strong { display: block; margin-bottom: 0.3rem; }
+.result-banner p { color: var(--text-secondary); font-size: 0.875rem; margin: 0; }
+
+.result-section { margin-bottom: 1.5rem; }
+.result-section-header {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.75rem;
+}
+.risk-header-high { background: rgba(244,63,94,0.12); color: #fb7185; }
+.risk-header-medium { background: rgba(251,191,36,0.1); color: var(--warning); }
+.risk-header-low { background: rgba(79,142,247,0.1); color: var(--accent-primary); }
+
+.issue-card {
+  margin-bottom: 1rem;
+  padding: 1.5rem;
+  border-left: 3px solid transparent;
+}
+.issue-card.issue-high { border-left-color: #f43f5e; }
+.issue-card.issue-medium { border-left-color: var(--warning); }
+.issue-card.issue-low { border-left-color: var(--accent-primary); }
+
+.issue-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+.issue-title-row { display: flex; flex-direction: column; gap: 0.3rem; }
+.issue-category-tag {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+.issue-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+.issue-description { font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.6; }
+
+.matched-keyword {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(79,142,247,0.08);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--accent-primary);
+  margin-bottom: 1rem;
+}
+.matched-keyword code {
+  background: rgba(79,142,247,0.15);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.law-block {
+  background: rgba(124,58,237,0.06);
+  border: 1px solid rgba(124,58,237,0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  margin-bottom: 0.875rem;
+}
+.law-title { font-size: 0.75rem; font-weight: 700; color: #c4b5fd; margin-bottom: 0.3rem; }
+.law-name { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.4rem; }
+.law-detail { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+
+.suggestion-block {
+  background: rgba(16,217,138,0.06);
+  border: 1px solid rgba(16,217,138,0.15);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+}
+.suggestion-title { font-size: 0.75rem; font-weight: 700; color: var(--success); margin-bottom: 0.3rem; }
+.suggestion-text { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+.no-issues {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+.no-issues-icon { font-size: 4rem; margin-bottom: 1rem; }
+.no-issues h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--success); }
+.no-issues p { color: var(--text-secondary); margin-bottom: 1rem; }
+.advice-tip {
+  display: inline-block;
+  background: rgba(79,142,247,0.08);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+.result-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+.action-buttons { display: flex; gap: 0.75rem; }
+
+.disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  margin-top: 1.25rem;
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.05);
+  font-size: 0.82rem;
+}
+.disclaimer-icon { font-size: 1.2rem; flex-shrink: 0; }
+.disclaimer-text { color: var(--text-muted); line-height: 1.6; }
+.disclaimer-text strong { color: var(--text-secondary); }
+.disclaimer-text a { color: var(--accent-primary); }
+
+/* ── 歷史頁 ── */
+.history-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.25rem;
+}
+.badge-danger { background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); color: #fb7185; }
+.badge-info { background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.25); color: var(--accent-primary); }
+
+/* ── 響應式 ── */
+@media (max-width: 768px) {
+  .mode-tabs { flex-direction: column; }
+  .risk-summary-row { grid-template-columns: repeat(2, 1fr); }
+  .form-actions { flex-direction: column; align-items: stretch; }
+  .result-actions { flex-direction: column; }
+  .action-buttons { flex-direction: column; }
+  .text-tips { flex-direction: column; gap: 0.5rem; }
+}
