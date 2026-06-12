@@ -20,7 +20,7 @@ def contract_check():
             categories[cat] = []
         categories[cat].append(clause)
 
-    return render_template('contract_check.html', categories=categories)
+    return render_template('contract_check.html', categories=categories, total_clauses=len(ILLEGAL_CLAUSES))
 
 
 @contract_bp.route('/contract/analyze', methods=['POST'])

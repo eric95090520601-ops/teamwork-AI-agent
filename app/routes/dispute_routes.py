@@ -5,6 +5,8 @@ from app.models.dispute import DisputeModel
 from app.models.user import UserModel
 from app.models.lease import LeaseModel
 from datetime import datetime
+import uuid
+from app.utils.watermark import add_watermark
 
 dispute_bp = Blueprint('dispute', __name__)
 
@@ -39,9 +41,10 @@ def create_dispute(lease_id):
             if file and file.filename != '':
                 if allowed_file(file.filename):
                     filename = secure_filename(file.filename)
-                    unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_movein_{filename}"
+                    unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}_movein_{filename}"
                     upload_path = os.path.join(upload_folder, unique_filename)
                     file.save(upload_path)
+                    add_watermark(upload_path)
                     
                     file_url = f"/static/uploads/{unique_filename}"
                     DisputeModel.add_evidence(dispute_id, initiator_id, 'move_in', file_url)
@@ -54,9 +57,10 @@ def create_dispute(lease_id):
             if file and file.filename != '':
                 if allowed_file(file.filename):
                     filename = secure_filename(file.filename)
-                    unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_moveout_{filename}"
+                    unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}_moveout_{filename}"
                     upload_path = os.path.join(upload_folder, unique_filename)
                     file.save(upload_path)
+                    add_watermark(upload_path)
                     
                     file_url = f"/static/uploads/{unique_filename}"
                     DisputeModel.add_evidence(dispute_id, initiator_id, 'move_out', file_url)
@@ -86,11 +90,12 @@ def add_dispute_evidence(dispute_id):
     if photo and photo.filename != '':
         if allowed_file(photo.filename):
             filename = secure_filename(photo.filename)
-            unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{photo_type}_{filename}"
+            unique_filename = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{uuid.uuid4().hex[:6]}_{photo_type}_{filename}"
             upload_folder = os.path.join(current_app.root_path, 'static', 'uploads')
             os.makedirs(upload_folder, exist_ok=True)
             upload_path = os.path.join(upload_folder, unique_filename)
             photo.save(upload_path)
+            add_watermark(upload_path)
             
             file_url = f"/static/uploads/{unique_filename}"
             DisputeModel.add_evidence(dispute_id, uploader_id, photo_type, file_url)
