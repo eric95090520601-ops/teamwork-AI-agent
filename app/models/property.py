@@ -108,3 +108,44 @@ class PropertyModel:
             FROM properties WHERE is_available = 1
         """)
         return cursor.fetchone()
+
+    @staticmethod
+    def get_by_landlord(landlord_id):
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("""
+            SELECT p.*, l.name AS landlord_name, l.rating_score, l.review_count
+            FROM properties p
+            JOIN landlords l ON p.landlord_id = l.id
+            WHERE p.landlord_id = ?
+            ORDER BY p.created_at DESC
+        """, (landlord_id,))
+        return cursor.fetchall()
+
+    @staticmethod
+    def create_property(landlord_id, title, description, address, district, rent_price, room_type, bedroom_count, area_sqm, floor, total_floors, is_tax_deductible, is_subsidy_eligible):
+        db = get_db()
+        cursor = db.cursor()
+        cursor.execute("""
+            INSERT INTO properties
+            (landlord_id, title, description, address, district, rent_price,
+             room_type, bedroom_count, area_sqm, floor, total_floors,
+             is_tax_deductible, is_subsidy_eligible)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (landlord_id, title, description, address, district, rent_price, room_type, bedroom_count, area_sqm, floor, total_floors, is_tax_deductible, is_subsidy_eligible))
+        db.commit()
+        return cursor.lastrowid
+
+    @staticmethod
+    def toggle_availability(property_id, landlord_id):
+        db = get_db()
+        cursor = db.cursor()
+        # 取得目前狀態
+        cursor.execute("SELECT is_available FROM properties WHERE id = ? AND landlord_id = ?", (property_id, landlord_id))
+        row = cursor.fetchone()
+        if row:
+            new_status = 0 if row['is_available'] == 1 else 1
+            cursor.execute("UPDATE properties SET is_available = ? WHERE id = ? AND landlord_id = ?", (new_status, property_id, landlord_id))
+            db.commit()
+            return new_status
+        return None
