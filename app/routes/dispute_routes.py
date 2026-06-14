@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, g
 from werkzeug.utils import secure_filename
 from app.models.dispute import DisputeModel
 from app.models.user import UserModel
@@ -128,12 +128,18 @@ def view_dispute(dispute_id):
 
 @dispute_bp.route('/admin/disputes', methods=['GET'])
 def admin_dispute_list():
+    if getattr(g, 'role', '') != 'admin':
+        flash('權限不足，只有管理員能進入仲裁中心')
+        return redirect(url_for('payment.index'))
     user = UserModel.get_user(g.user_id)
     disputes = DisputeModel.get_all()
     return render_template('disputes/admin_list.html', disputes=disputes, user=user)
 
 @dispute_bp.route('/admin/disputes/<int:dispute_id>', methods=['GET'])
 def admin_dispute_detail(dispute_id):
+    if getattr(g, 'role', '') != 'admin':
+        flash('權限不足，只有管理員能進入仲裁中心')
+        return redirect(url_for('payment.index'))
     user = UserModel.get_user(g.user_id)
     dispute = DisputeModel.get_by_id(dispute_id)
     if not dispute:
@@ -153,6 +159,9 @@ def admin_dispute_detail(dispute_id):
 
 @dispute_bp.route('/admin/disputes/<int:dispute_id>/decide', methods=['POST'])
 def admin_dispute_decide(dispute_id):
+    if getattr(g, 'role', '') != 'admin':
+        flash('權限不足，只有管理員能進行裁決')
+        return redirect(url_for('payment.index'))
     admin_decision = request.form.get('admin_decision')
     
     if admin_decision:

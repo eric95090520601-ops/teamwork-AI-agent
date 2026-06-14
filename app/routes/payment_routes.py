@@ -10,6 +10,11 @@ payment_bp = Blueprint('payment', __name__)
 
 @payment_bp.route('/')
 def index():
+    if getattr(g, 'role', '') == 'admin':
+        return redirect(url_for('dispute.admin_dispute_list'))
+    if getattr(g, 'role', '') == 'landlord':
+        return redirect(url_for('property.manage_properties'))
+
     user = UserModel.get_user(g.user_id)
     lease = LeaseModel.get_lease_by_user(g.user_id)
     

@@ -11,9 +11,14 @@ def switch_role(user_id):
         session['role'] = user['role']
         session['username'] = user['username']
         flash(f"已成功切換身分為：{user['username']} ({user['role']})", "success")
+        
+        # 根據身分跳轉到專屬首頁
+        if user['role'] == 'admin':
+            return redirect(url_for('dispute.admin_dispute_list'))
+        elif user['role'] == 'landlord':
+            return redirect(url_for('property.manage_properties'))
+        else:
+            return redirect(url_for('payment.index'))
     else:
         flash("找不到該使用者", "danger")
-        
-    # 回到上一頁，或預設回到首頁
-    next_url = request.referrer or url_for('payment.index')
-    return redirect(next_url)
+        return redirect(url_for('payment.index'))
