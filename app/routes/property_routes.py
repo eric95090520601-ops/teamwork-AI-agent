@@ -81,7 +81,65 @@ def property_list():
         selected_districts=districts,
         is_tax_deductible=is_tax_deductible,
         is_subsidy_eligible=is_subsidy_eligible,
-        selected_min_rating=min_rating,
         selected_sort_by=sort_by,
         selected_rent_label=selected_rent_label,
     )
+
+@property_bp.route('/properties/manage')
+def manage_properties():
+    from flask import g, flash, redirect, url_for
+    if getattr(g, 'role', '') != 'landlord':
+        flash('只有房東可以管理房源。', 'danger')
+        return redirect(url_for('payment.index'))
+    
+    properties = PropertyModel.get_by_landlord(g.user_id)
+    return render_template('properties_manage.html', properties=properties)
+
+@property_bp.route('/properties/create', methods=['POST'])
+def create_property():
+    from flask import g, flash, redirect, url_for
+    if getattr(g, 'role', '') != 'landlord':
+        return redirect(url_for('payment.index'))
+    
+    title = request.form.get('title')
+    description = request.form.get('description')
+    address = request.form.get('address')
+    district = request.form.get('district')
+    rent_price = request.form.get('rent_price', type=int)
+    room_type = request.form.get('room_type')
+    
+    PropertyModel.create_property(
+        landlord_id=g.user_id,
+        title=title,
+        description=description,
+        address=address,
+        district=district,
+        rent_price=rent_price,
+        room_type=room_type,
+        bedroom_count=1,
+        area_sqm=10.0,
+        floor=1,
+        total_floors=5,
+        is_tax_deductible=1,
+        is_subsidy_eligible=1
+    )
+    flash('房源刊登成功！', 'success')
+    return redirect(url_for('property.manage_properties'))
+
+@property_bp.route('/properties/toggle/<int:property_id>', methods=['POST'])
+def toggle_property(property_id):
+    from flask import g, flash, redirect, url_for
+    if getattr(g, 'role', '') != 'landlord':
+        return redirect(url_for('payment.index'))
+    
+    status = PropertyModel.toggle_availability(property_id, g.user_id)
+    if status is not None:
+        if status == 1:
+            flash('房源已重新上架！', 'success')
+        else:
+            flash('房源已下架！', 'warning')
+    else:
+        flash('找不到該房源或您無權操作。', 'danger')
+        
+    return redirect(url_for('property.manage_properties'))
+

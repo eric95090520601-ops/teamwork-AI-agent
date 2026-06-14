@@ -1,13 +1,12 @@
 import os
 from datetime import datetime
-from flask import Blueprint, request, jsonify, current_app, render_template
+from flask import g, Blueprint, request, jsonify, current_app, render_template
 from werkzeug.utils import secure_filename
 from app.models.check_in import CheckInModel
 from app.models.user import UserModel
 from app.models.lease import LeaseModel
 
 check_in_bp = Blueprint('check_in', __name__)
-CURRENT_USER_ID = 1
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -122,14 +121,14 @@ def api_check_in():
 
 @check_in_bp.route('/handover', methods=['GET'])
 def handover_page():
-    user = UserModel.get_user(CURRENT_USER_ID)
-    lease = LeaseModel.get_lease_by_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
+    lease = LeaseModel.get_lease_by_user(g.user_id)
     # 預設對應的房源 ID 為 1 (第一筆測試資料)
     property_id = 1
     return render_template('handover_form.html', user=user, lease=lease, property_id=property_id)
 
 @check_in_bp.route('/handover/history', methods=['GET'])
 def handover_history_page():
-    user = UserModel.get_user(CURRENT_USER_ID)
-    records = CheckInModel.get_records_by_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
+    records = CheckInModel.get_records_by_user(g.user_id)
     return render_template('handover_history.html', user=user, records=records)

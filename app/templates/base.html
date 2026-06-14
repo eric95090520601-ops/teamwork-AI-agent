@@ -17,17 +17,35 @@
                 <span class="shield-icon">🛡️</span> SafeRent
             </a>
             <ul class="nav-links">
-                <li><a href="{{ url_for('payment.index') }}">儀表板</a></li>
-                <li><a href="{{ url_for('property.property_list') }}">🔍 找房源</a></li>
-                <li><a href="{{ url_for('contract.contract_check') }}">📝 合約自檢</a></li>
-                <li><a href="{{ url_for('payment.payment_history') }}">繳費紀錄</a></li>
-                <li><a href="{{ url_for('legal.legal_faq') }}">⚖️ 法律查詢</a></li>
-                <li><a href="{{ url_for('repair.list_repairs') }}">🛠️ 報修中心</a></li>
-                <li><a href="{{ url_for('dispute.create_dispute') }}">🚨 爭議仲裁</a></li>
-                <li><a href="{{ url_for('dispute.admin_dispute_list') }}">⚖️ 仲裁中心</a></li>
-                <li class="user-profile">
+                {% if current_role == 'admin' %}
+                    <li><a href="{{ url_for('dispute.admin_dispute_list') }}">⚖️ 仲裁中心</a></li>
+                {% endif %}
+
+                {% if current_role == 'landlord' %}
+                    <li><a href="{{ url_for('property.manage_properties') }}">🏠 房源管理</a></li>
+                    <li><a href="{{ url_for('dispute.create_dispute', lease_id=1) }}">🚨 發起爭議</a></li>
+                {% endif %}
+
+                {% if current_role == 'tenant' %}
+                    <li><a href="{{ url_for('payment.index') }}">儀表板</a></li>
+                    <li><a href="{{ url_for('property.property_list') }}">🔍 找房源</a></li>
+                    <li><a href="{{ url_for('contract.contract_check') }}">📝 合約自檢</a></li>
+                    <li><a href="{{ url_for('payment.payment_history') }}">繳費紀錄</a></li>
+                    <li><a href="{{ url_for('legal.legal_faq') }}">⚖️ 法律查詢</a></li>
+                    <li><a href="{{ url_for('repair.list_repairs') }}">🛠️ 報修中心</a></li>
+                    <li><a href="{{ url_for('dispute.create_dispute', lease_id=1) }}">🚨 發起爭議</a></li>
+                {% endif %}
+
+                <li class="user-profile" style="position: relative;">
                     <span class="avatar"></span>
-                    {{ user.username if user else '訪客' }}
+                    <span style="cursor: pointer;" onclick="document.getElementById('role-dropdown').style.display = document.getElementById('role-dropdown').style.display === 'none' ? 'block' : 'none'">
+                        {{ user.username if user else '訪客' }} ▼
+                    </span>
+                    <div id="role-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 150px; z-index: 1000; overflow: hidden;">
+                        <a href="{{ url_for('auth.switch_role', user_id=1) }}" style="display: block; padding: 10px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #f5f5f5;">切換為 租客</a>
+                        <a href="{{ url_for('auth.switch_role', user_id=2) }}" style="display: block; padding: 10px 15px; color: #333; text-decoration: none; border-bottom: 1px solid #f5f5f5;">切換為 房東</a>
+                        <a href="{{ url_for('auth.switch_role', user_id=3) }}" style="display: block; padding: 10px 15px; color: #333; text-decoration: none;">切換為 管理員</a>
+                    </div>
                 </li>
             </ul>
         </div>

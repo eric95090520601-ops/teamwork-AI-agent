@@ -6,7 +6,7 @@ from app.models.contract import (
 
 contract_bp = Blueprint('contract', __name__)
 
-CURRENT_USER_ID = 1  # MVP：固定測試帳號
+  # MVP：固定測試帳號
 
 
 @contract_bp.route('/contract')
@@ -50,7 +50,7 @@ def analyze():
     check_id = None
     if save:
         check_id = ContractModel.save_result(
-            CURRENT_USER_ID, filename, contract_text, issues
+            g.user_id, filename, contract_text, issues
         )
         flash("分析結果已儲存，可在歷史紀錄中查閱。", "success")
 
@@ -70,14 +70,14 @@ def analyze():
 @contract_bp.route('/contract/history')
 def contract_history():
     """歷史紀錄頁面"""
-    history = ContractModel.get_history(CURRENT_USER_ID)
+    history = ContractModel.get_history(g.user_id)
     return render_template('contract_history.html', history=history)
 
 
 @contract_bp.route('/contract/history/<int:check_id>')
 def contract_history_detail(check_id):
     """查看某筆歷史紀錄詳情"""
-    result = ContractModel.get_result_by_id(check_id, CURRENT_USER_ID)
+    result = ContractModel.get_result_by_id(check_id, g.user_id)
     if not result:
         flash("找不到該筆紀錄。", "danger")
         return redirect(url_for('contract.contract_history'))

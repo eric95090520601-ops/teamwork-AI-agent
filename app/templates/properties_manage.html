@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="header-section" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>我的房源管理</h2>
+        <button class="btn btn-primary" onclick="document.getElementById('createModal').style.display='block'">+ 刊登新房源</button>
+    </div>
+
+    <div class="properties-list" style="margin-top: 20px;">
+        {% if properties %}
+            <table class="table" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                        <th>房源標題</th>
+                        <th>類型</th>
+                        <th>區域</th>
+                        <th>租金</th>
+                        <th>狀態</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in properties %}
+                    <tr style="border-bottom: 1px solid #eee; height: 50px;">
+                        <td>{{ p.title }}</td>
+                        <td>{{ p.room_type }}</td>
+                        <td>{{ p.district }}</td>
+                        <td>{{ p.rent_price }} 元/月</td>
+                        <td>
+                            {% if p.is_available %}
+                                <span style="color: green; font-weight: bold;">出租中</span>
+                            {% else %}
+                                <span style="color: gray;">已下架</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form action="{{ url_for('property.toggle_property', property_id=p.id) }}" method="POST" style="display:inline;">
+                                {% if p.is_available %}
+                                    <button type="submit" class="btn btn-warning btn-sm" style="background-color: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">下架</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-success btn-sm" style="background-color: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">重新上架</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>您目前沒有刊登任何房源。</p>
+        {% endif %}
+    </div>
+
+    <!-- 刊登房源 Modal -->
+    <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; width: 500px; margin: 100px auto; padding: 20px; border-radius: 8px;">
+            <h3>刊登新房源</h3>
+            <form action="{{ url_for('property.create_property') }}" method="POST">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>房源標題</label>
+                    <input type="text" name="title" required class="form-control" style="width: 100%; padding: 8px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>描述</label>
+                    <textarea name="description" class="form-control" style="width: 100%; padding: 8px;" rows="3"></textarea>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>地址</label>
+                    <input type="text" name="address" required class="form-control" style="width: 100%; padding: 8px;">
+                </div>
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div style="flex: 1;">
+                        <label>區域</label>
+                        <select name="district" class="form-control" style="width: 100%; padding: 8px;">
+                            <option value="西屯區">西屯區</option>
+                            <option value="南屯區">南屯區</option>
+                            <option value="北屯區">北屯區</option>
+                            <option value="中區">中區</option>
+                            <option value="東區">東區</option>
+                            <option value="南區">南區</option>
+                            <option value="西區">西區</option>
+                            <option value="北區">北區</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>房型</label>
+                        <select name="room_type" class="form-control" style="width: 100%; padding: 8px;">
+                            <option value="套房">套房</option>
+                            <option value="雅房">雅房</option>
+                            <option value="一房一廳">一房一廳</option>
+                            <option value="兩房一廳">兩房一廳</option>
+                            <option value="整層住家">整層住家</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>月租金 (元)</label>
+                    <input type="number" name="rent_price" required class="form-control" style="width: 100%; padding: 8px;">
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn" onclick="document.getElementById('createModal').style.display='none'" style="margin-right: 10px;">取消</button>
+                    <button type="submit" class="btn btn-primary">送出刊登</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

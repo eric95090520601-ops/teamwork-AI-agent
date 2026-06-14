@@ -29,17 +29,23 @@ def init_db(app):
 
         cursor = db.cursor()
 
-        # ===== 租客 & 租約假資料 =====
+        # ===== 使用者 & 租約假資料 =====
         cursor.execute("SELECT COUNT(*) FROM users")
         if cursor.fetchone()[0] == 0:
-            cursor.execute(
-                "INSERT INTO users (username, email) VALUES (?, ?)",
-                ('王小明 (測試租客)', 'test@example.com')
-            )
-            user_id = cursor.lastrowid
+            users_data = [
+                ('王小明 (測試租客)', 'tenant@example.com', 'tenant'),
+                ('張大明 (測試房東)', 'landlord@example.com', 'landlord'),
+                ('系統管理員', 'admin@example.com', 'admin')
+            ]
+            for u in users_data:
+                cursor.execute(
+                    "INSERT INTO users (username, email, role) VALUES (?, ?, ?)",
+                    u
+                )
+            # 王小明 (user_id=1) 建立租約
             cursor.execute(
                 "INSERT INTO leases (user_id, address, monthly_rent, start_date, end_date) VALUES (?, ?, ?, ?, ?)",
-                (user_id, '台中市西屯區台灣大道三段1號5樓', 15000, '2026-01-01', '2026-12-31')
+                (1, '台中市西屯區台灣大道三段1號5樓', 15000, '2026-01-01', '2026-12-31')
             )
             db.commit()
 

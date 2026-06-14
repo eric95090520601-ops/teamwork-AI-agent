@@ -11,7 +11,6 @@ from app.utils.watermark import add_watermark
 dispute_bp = Blueprint('dispute', __name__)
 
 # 為了與主要模組整合，假設固定操作 user_id = 1
-CURRENT_USER_ID = 1
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -20,10 +19,10 @@ def allowed_file(filename):
 
 @dispute_bp.route('/disputes/create/<int:lease_id>', methods=['GET', 'POST'])
 def create_dispute(lease_id):
-    user = UserModel.get_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
     if request.method == 'POST':
         reason = request.form.get('reason')
-        initiator_id = CURRENT_USER_ID
+        initiator_id = g.user_id
         
         if not reason:
             flash('請填寫爭議原因')
@@ -85,7 +84,7 @@ def add_dispute_evidence(dispute_id):
         
     photo = request.files.get('photo')
     photo_type = request.form.get('photo_type')
-    uploader_id = CURRENT_USER_ID
+    uploader_id = g.user_id
     
     if photo and photo.filename != '':
         if allowed_file(photo.filename):
@@ -110,7 +109,7 @@ def add_dispute_evidence(dispute_id):
 
 @dispute_bp.route('/disputes/<int:dispute_id>', methods=['GET'])
 def view_dispute(dispute_id):
-    user = UserModel.get_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
     dispute = DisputeModel.get_by_id(dispute_id)
     if not dispute:
         flash('找不到該案件')
@@ -129,13 +128,13 @@ def view_dispute(dispute_id):
 
 @dispute_bp.route('/admin/disputes', methods=['GET'])
 def admin_dispute_list():
-    user = UserModel.get_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
     disputes = DisputeModel.get_all()
     return render_template('disputes/admin_list.html', disputes=disputes, user=user)
 
 @dispute_bp.route('/admin/disputes/<int:dispute_id>', methods=['GET'])
 def admin_dispute_detail(dispute_id):
-    user = UserModel.get_user(CURRENT_USER_ID)
+    user = UserModel.get_user(g.user_id)
     dispute = DisputeModel.get_by_id(dispute_id)
     if not dispute:
         flash('找不到該案件')
